@@ -1,12 +1,13 @@
 import { generatePoint } from '../mock/point';
-import {DESTINATIONS, OFFERS} from '../const';
+import {getDestinations} from '../mock/destinations';
+import {getOffers} from '../mock/offers';
 
 const POINT_AMOUNT = 5;
 
 export default class TripsModel {
   #points = Array.from({length: POINT_AMOUNT}, generatePoint);
-  #destinations = DESTINATIONS;
-  #offers = OFFERS;
+  #destinations = getDestinations();
+  #offers = getOffers();
   #trips = this.#points.map((point) => this.#supplementPoint(point));
 
   get trips() {

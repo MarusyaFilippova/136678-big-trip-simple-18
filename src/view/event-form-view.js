@@ -1,24 +1,24 @@
 import { createElement } from '../render';
-import {getFormattedDate, getTodayDate} from '../utils';
+import {getFormattedDate} from '../utils';
 
-const createTypeTemplate = (type, checked, id) => (`
+const createTypeTemplate = (type, checked) => (`
   <div class="event__type-item">
-    <input id="event-type-${type}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${checked ? 'checked' : ''}>
-    <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${id}">${type}</label>
+    <input id="event-type-${type}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${checked ? 'checked' : ''}>
+    <label class="event__type-label  event__type-label--${type}" for="event-type-${type}">${type}</label>
   </div>
 `);
 
-const createEventTypeTemplate = (types, type, eventId) => {
-  const typesTemplate = types.map((item) => createTypeTemplate(item, item === type, eventId)).join('');
-  const icon = type ? `<img className="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">` : ''
+const createEventTypeTemplate = (types, type) => {
+  const typesTemplate = types.map((item) => createTypeTemplate(item, item === type)).join('');
+  const icon = type ? `<img className="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">` : '';
 
   return (`
     <div class="event__type-wrapper">
-      <label class="event__type  event__type-btn" for="event-type-toggle-${eventId}">
+      <label class="event__type  event__type-btn" for="event-type-toggle">
         <span class="visually-hidden">Choose event type</span>
         ${icon}
       </label>
-      <input class="event__type-toggle visually-hidden" id="event-type-toggle-${eventId}" type="checkbox">
+      <input class="event__type-toggle visually-hidden" id="event-type-toggle" type="checkbox">
       <div class="event__type-list">
         <fieldset class="event__type-group">
           <legend class="visually-hidden">Event type</legend>
@@ -29,17 +29,17 @@ const createEventTypeTemplate = (types, type, eventId) => {
   `);
 };
 
-const createEventDestinationTemplate = (type, eventDestination, destinations, eventId) => {
+const createEventDestinationTemplate = (type, eventDestination, destinations) => {
   const optionsTemplate = destinations.map(({name}) => `<option value="${name}"></option>`).join('');
   const destination = destinations.find((item) => eventDestination?.id === item.id);
 
   return (`
     <div class="event__field-group  event__field-group--destination">
-      <label class="event__label  event__type-output" for="event-destination-${eventId}">
+      <label class="event__label  event__type-output" for="event-destination">
         ${type || ''}
       </label>
-      <input class="event__input  event__input--destination" id="event-destination-${eventId}" type="text" name="event-destination" value="${destination?.name || ''}" list="destination-list-${eventId}">
-      <datalist id="destination-list-${eventId}">
+      <input class="event__input  event__input--destination" id="event-destination" type="text" name="event-destination" value="${destination?.name || ''}" list="destination-list">
+      <datalist id="destination-list">
         ${optionsTemplate}
       </datalist>
     </div>
@@ -101,7 +101,6 @@ const createOffersSection = (eventOffers, offers) => {
 
 const createEventFormTemplate = (event, destinations, offers) => {
   const {
-    id: eventId = 1,
     basePrice,
     dateFrom,
     dateTo,
@@ -113,8 +112,8 @@ const createEventFormTemplate = (event, destinations, offers) => {
   const types = offers.map((offer) => offer.type);
   const offerByType = offers.find((item) => item.type === type);
 
-  const eventTypeTemplate = createEventTypeTemplate(types, type, eventId);
-  const destinationTemplate = createEventDestinationTemplate(type, eventDestination, destinations, eventId);
+  const eventTypeTemplate = createEventTypeTemplate(types, type);
+  const destinationTemplate = createEventDestinationTemplate(type, eventDestination, destinations);
   const offersSection = createOffersSection(eventOffers, offerByType?.offers);
   const destinationSection = createDestinationSection(eventDestination, destinations);
 
@@ -129,19 +128,19 @@ const createEventFormTemplate = (event, destinations, offers) => {
           ${destinationTemplate}
 
           <div class="event__field-group  event__field-group--time">
-            <label class="visually-hidden" for="event-start-time-${eventId}">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-${eventId}" type="text" name="event-start-time" value="${startDate}">
+            <label class="visually-hidden" for="event-start-time">From</label>
+            <input class="event__input  event__input--time" id="event-start-time" type="text" name="event-start-time" value="${startDate}">
             &mdash;
-            <label class="visually-hidden" for="event-end-time-${eventId}">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-${eventId}" type="text" name="event-end-time" value="${endDate}">
+            <label class="visually-hidden" for="event-end-time">To</label>
+            <input class="event__input  event__input--time" id="event-end-time" type="text" name="event-end-time" value="${endDate}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
-            <label class="event__label" for="event-price-${eventId}">
+            <label class="event__label" for="event-price">
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-${eventId}" type="text" name="event-price" value="${basePrice || ''}">
+            <input class="event__input  event__input--price" id="event-price" type="text" name="event-price" value="${basePrice || ''}">
           </div>
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
           <button class="event__reset-btn" type="reset">Cancel</button>
@@ -185,11 +184,10 @@ export default class EventFormView {
   }
 
   #getNewEvent() {
-    const date = getTodayDate();
     return ({
       basePrice: null,
-      dateFrom: date,
-      dateTo: date,
+      dateFrom: null,
+      dateTo: null,
       destinationId: null,
       isFavorite: false,
       offers: [],

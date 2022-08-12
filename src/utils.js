@@ -38,10 +38,9 @@ const getDuration = (dateFrom, dateTo) => {
   return formatDuration(days, hours, minutes);
 };
 
-const getTodayDate = () => dayjs();
 const getFormattedDate = (date, format = 'YYYY-MM-DD') => date ? dayjs(date).format(format) : '';
 const getFormattedTime = (date, format = 'HH:mm') => date ? dayjs(date).format(format) : '';
 
 const shuffleElements = (elements) => elements.sort(() => Math.random() - 0.5);
 
-export {getTodayDate, getDuration, getFormattedDate, getFormattedTime, getRandomElement, getRandomInteger, shuffleElements};
+export {getDuration, getFormattedDate, getFormattedTime, getRandomElement, getRandomInteger, shuffleElements};
