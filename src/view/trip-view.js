@@ -69,14 +69,15 @@ const createTripTemplate = ({basePrice, dateFrom, dateTo, destination, isFavorit
 
 
 export default class TripView {
+  #element = null;
+  #trip = null;
+
   constructor(point) {
-    this.trip = point;
+    this.#trip = point;
   }
 
-  #element = null;
-
   get template() {
-    return createTripTemplate(this.trip);
+    return createTripTemplate(this.#trip);
   }
 
   get element() {
