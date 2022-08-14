@@ -6,17 +6,32 @@ import TripView from '../view/trip-view';
 import {render} from '../render';
 
 export default class TripPresenter {
-  tripListComponent = new TripListView();
+  #tripContainer = null;
+  #tripsModel = null;
 
-  init = (tripContainer) => {
-    this.tripContainer = tripContainer;
+  #tripListComponent = new TripListView();
 
-    render(new TripSortView(), this.tripContainer);
-    render(this.tripListComponent, this.tripContainer);
-    render(new EventFormView(), this.tripListComponent.element);
+  #trips = [];
+  #destinations = [];
+  #offers = [];
 
-    for (let i = 0; i < 3; i++) {
-      render(new TripView(), this.tripListComponent.element);
-    }
+  init = (tripContainer, tripsModel) => {
+    this.#tripContainer = tripContainer;
+    this.#tripsModel = tripsModel;
+    this.#trips = [...this.#tripsModel.trips];
+    this.#destinations = [...this.#tripsModel.destinations];
+    this.#offers = [...this.#tripsModel.offers];
+
+    render(new TripSortView(), this.#tripContainer);
+    render(this.#tripListComponent, this.#tripContainer);
+    render(new EventFormView(this.#offers, this.#destinations, this.#trips[0]), this.#tripListComponent.element);
+
+    this.#trips.forEach(this.#renderTrip);
+  };
+
+  #renderTrip = (trip) => {
+    const tripComponent = new TripView(trip);
+
+    render(tripComponent, this.#tripListComponent.element);
   };
 }
