@@ -12,11 +12,11 @@ export default class TripPresenter {
 
   #tripListComponent = new TripListView();
   #tripFormComponent = null;
+  #openedTripComponent = null;
 
   #trips = [];
   #destinations = [];
   #offers = [];
-  #openedTrip = null;
 
   init = (tripContainer, tripsModel) => {
     this.#tripContainer = tripContainer;
@@ -36,7 +36,7 @@ export default class TripPresenter {
     const rollupButtonElement = tripComponent.element.querySelector('.event__rollup-btn');
 
     const replaceFormToCard = () => {
-      this.#openedTrip = null;
+      this.#openedTripComponent = null;
       this.#tripListComponent.element.replaceChild(tripComponent.element, this.#tripFormComponent.element);
       this.#tripFormComponent.removeElement();
       document.removeEventListener('keydown', onEscKeyDown);
@@ -56,13 +56,13 @@ export default class TripPresenter {
     };
 
     const replaceCardToForm = () => {
-      if (this.#openedTrip) {
-        this.#tripListComponent.element.replaceChild(this.#openedTrip.element, this.#tripFormComponent.element);
+      if (this.#openedTripComponent) {
+        this.#tripListComponent.element.replaceChild(this.#openedTripComponent.element, this.#tripFormComponent.element);
         this.#tripFormComponent.removeElement();
         document.removeEventListener('keydown', onEscKeyDown);
       }
 
-      this.#openedTrip = tripComponent;
+      this.#openedTripComponent = tripComponent;
       this.#tripFormComponent = new EventFormView(this.#offers, this.#destinations, trip);
       this.#tripListComponent.element.replaceChild(this.#tripFormComponent.element, tripComponent.element);
       const expandButtonElement = this.#tripFormComponent.element.querySelector('.event__rollup-btn');
