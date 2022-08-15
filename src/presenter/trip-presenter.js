@@ -5,6 +5,8 @@ import TripView from '../view/trip-view';
 
 import {render} from '../render';
 import {isEscKeyDown} from '../utils';
+import TripMessageView from '../view/trip-message-view';
+import {TripMessage} from '../const';
 
 export default class TripPresenter {
   #tripContainer = null;
@@ -24,6 +26,11 @@ export default class TripPresenter {
     this.#trips = [...this.#tripsModel.trips];
     this.#destinations = [...this.#tripsModel.destinations];
     this.#offers = [...this.#tripsModel.offers];
+
+    if (!this.#trips.length){
+      render(new TripMessageView(TripMessage.EMPTY_LIST), this.#tripContainer);
+      return;
+    }
 
     render(new TripSortView(), this.#tripContainer);
     render(this.#tripListComponent, this.#tripContainer);
