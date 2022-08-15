@@ -10,4 +10,9 @@ const OFFER_TYPES = [
   'restaurant'
 ];
 
-export {OFFER_TYPES};
+const TripMessage = {
+  EMPTY_LIST: 'Click New Event to create your first point',
+  LOADING: 'Loading...',
+};
+
+export {OFFER_TYPES, TripMessage};
