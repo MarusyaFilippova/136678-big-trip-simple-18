@@ -1,5 +1,5 @@
-import { createElement } from '../render';
 import {getDuration, getFormattedDate, getFormattedTime} from '../utils';
+import AbstractView from '../framework/view/abstract-view';
 
 const createScheduleTemplate = (dateFrom, dateTo) => {
   const fromTime = getFormattedTime(dateFrom);
@@ -68,11 +68,11 @@ const createTripTemplate = ({basePrice, dateFrom, dateTo, destination, isFavorit
 };
 
 
-export default class TripView {
-  #element = null;
+export default class TripView extends AbstractView {
   #trip = null;
 
   constructor(point) {
+    super();
     this.#trip = point;
   }
 
@@ -80,15 +80,13 @@ export default class TripView {
     return createTripTemplate(this.#trip);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setRollUpButtonClick = (callback) => {
+    this._callback.rollUpButtonClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollUpButtonHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #rollUpButtonHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.rollUpButtonClick(this.#trip, this);
+  };
 }

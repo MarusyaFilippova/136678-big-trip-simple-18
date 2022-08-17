@@ -3,7 +3,7 @@ import TripListView from '../view/trip-list-view';
 import TripSortView from '../view/trip-sort-view';
 import TripView from '../view/trip-view';
 
-import {render} from '../render';
+import {render, replace, remove} from '../framework/render';
 import {isEscKeyDown} from '../utils';
 import TripMessageView from '../view/trip-message-view';
 import {TripMessage} from '../const';
@@ -40,50 +40,37 @@ export default class TripPresenter {
 
   #renderTrip = (trip) => {
     const tripComponent = new TripView(trip);
-    const rollupButtonElement = tripComponent.element.querySelector('.event__rollup-btn');
 
-    const replaceFormToCard = () => {
-      this.#openedTripComponent = null;
-      this.#tripListComponent.element.replaceChild(tripComponent.element, this.#tripFormComponent.element);
-      this.#tripFormComponent.removeElement();
-      document.removeEventListener('keydown', onEscKeyDown);
-    };
-
-    function onEscKeyDown(evt) {
-      isEscKeyDown(evt, replaceFormToCard);
-    }
-
-    const formSubmitHandler = (evt) => {
-      evt.preventDefault();
-      replaceFormToCard();
-    };
-
-    const formResetHandler = () => {
-      replaceFormToCard();
-    };
-
-    const replaceCardToForm = () => {
-      if (this.#openedTripComponent) {
-        this.#tripListComponent.element.replaceChild(this.#openedTripComponent.element, this.#tripFormComponent.element);
-        this.#tripFormComponent.removeElement();
-        document.removeEventListener('keydown', onEscKeyDown);
-      }
-
-      this.#openedTripComponent = tripComponent;
-      this.#tripFormComponent = new EventFormView(this.#offers, this.#destinations, trip);
-      this.#tripListComponent.element.replaceChild(this.#tripFormComponent.element, tripComponent.element);
-      const expandButtonElement = this.#tripFormComponent.element.querySelector('.event__rollup-btn');
-      const editFormElement = this.#tripFormComponent.element.querySelector('.event--edit');
-
-      expandButtonElement.addEventListener('click', replaceFormToCard);
-      editFormElement.addEventListener('submit', formSubmitHandler);
-      editFormElement.addEventListener('reset', formResetHandler);
-
-      document.addEventListener('keydown', onEscKeyDown);
-    };
-
-    rollupButtonElement.addEventListener('click', () => replaceCardToForm());
+    tripComponent.setRollUpButtonClick(this.#replaceCardToForm);
 
     render(tripComponent, this.#tripListComponent.element);
+  };
+
+  #replaceFormToCard = () => {
+    replace(this.#openedTripComponent, this.#tripFormComponent);
+    remove(this.#tripFormComponent);
+    this.#openedTripComponent = null;
+    document.removeEventListener('keydown', this.#onEscKeyDown);
+  };
+
+  #replaceCardToForm = (trip, tripComponent) => {
+    if (this.#openedTripComponent) {
+      this.#replaceFormToCard();
+    }
+
+    this.#openedTripComponent = tripComponent;
+    this.#tripFormComponent = new EventFormView(this.#offers, this.#destinations, trip);
+
+    replace(this.#tripFormComponent, tripComponent);
+
+    this.#tripFormComponent.setRollUpButtonClick(this.#replaceFormToCard);
+    this.#tripFormComponent.setFormSubmit(this.#replaceFormToCard);
+    this.#tripFormComponent.setFormReset(this.#replaceFormToCard);
+
+    document.addEventListener('keydown', this.#onEscKeyDown);
+  };
+
+  #onEscKeyDown = (evt) => {
+    isEscKeyDown(evt, this.#replaceFormToCard);
   };
 }
