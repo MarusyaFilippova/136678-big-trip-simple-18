@@ -1,5 +1,5 @@
-import { createElement } from '../render';
 import {getFormattedDate} from '../utils';
+import AbstractView from '../framework/view/abstract-view';
 
 const createTypeTemplate = (type, checked) => (`
   <div class="event__type-item">
@@ -157,13 +157,13 @@ const createEventFormTemplate = (event, destinations, offers) => {
   `);
 };
 
-export default class EventFormView {
-  #element = null;
+export default class EventFormView extends AbstractView {
   #destinations = null;
   #offers = null;
   #event = null;
 
   constructor(offers, destinations, point) {
+    super();
     this.#destinations = destinations;
     this.#offers = offers;
 
@@ -174,20 +174,38 @@ export default class EventFormView {
     return createEventFormTemplate(this.#event, this.#destinations, this.#offers);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setRollUpButtonClick = (callback) => {
+    this._callback.rollUpButtonClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollUpButtonHandler);
+  };
 
-    return this.#element;
-  }
+  #rollUpButtonHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.rollUpButtonClick();
+  };
 
-  set element(value) {
-    this.#element = value;
-  }
+  setFormSubmit = (callback) => {
+    this._callback.submit = callback;
+    this.#getFormElement().addEventListener('submit', this.#submitHandler);
+  };
 
-  removeElement() {
-    this.#element = null;
+  #submitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.submit();
+  };
+
+  setFormReset = (callback) => {
+    this._callback.reset = callback;
+    this.#getFormElement().addEventListener('reset', this.#resetHandler);
+  };
+
+  #resetHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.reset();
+  };
+
+  #getFormElement() {
+    return this.element.querySelector('.event--edit');
   }
 
   #getNewEvent() {

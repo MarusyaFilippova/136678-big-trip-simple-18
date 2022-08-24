@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
 
-const isEscKeyDown = (evt, callback) => {
-  if (evt.key === 'Esc') {
+function isEscKeyDown(evt, callback) {
+  if (evt.key === 'Esc' || evt.key === 'Escape') {
     evt.preventDefault();
     callback();
   }
-};
+}
 
 const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
@@ -46,7 +46,7 @@ const getDuration = (dateFrom, dateTo) => {
 };
 
 const getFormattedDate = (date, format = 'YYYY-MM-DD') => date ? dayjs(date).format(format) : '';
-const getFormattedTime = (date, format = 'HH:mm') => date ? dayjs(date).format(format) : '';
+const getFormattedTime = (date, format = 'H:mm') => date ? dayjs(date).format(format) : '';
 
 const shuffleElements = (elements) => elements.sort(() => Math.random() - 0.5);
 

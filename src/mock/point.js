@@ -1,10 +1,10 @@
 import {getRandomElement, getRandomInteger, shuffleElements} from '../utils';
-import {OFFER_TYPES} from '../const';
 import {getDestinations} from './destinations';
 import {getOffers} from './offers';
 
 const initialDestinations = getDestinations();
 const initialOffers = getOffers();
+const offerTypes = initialOffers.map((offer) => offer.type);
 
 const getOfferIds = (type) => {
   const offers = initialOffers.find((offer) => offer.type === type).offers;
@@ -13,7 +13,7 @@ const getOfferIds = (type) => {
 };
 
 export const generatePoint = () => {
-  const type = getRandomElement(OFFER_TYPES);
+  const type = getRandomElement(offerTypes);
   const offers = getOfferIds(type);
 
   return ({

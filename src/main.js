@@ -1,6 +1,6 @@
 import TripFiltersView from './view/trip-filters-view';
 import TripPresenter from './presenter/trip-presenter';
-import { render } from './render';
+import { render } from './framework/render';
 import TripsModel from './model/trips-model';
 const tripsModel = new TripsModel();
 
