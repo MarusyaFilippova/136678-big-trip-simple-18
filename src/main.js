@@ -1,16 +1,8 @@
-import TripFiltersView from './view/trip-filters-view';
-import TripPresenter from './presenter/trip-presenter';
-import { render } from './framework/render';
-import TripsModel from './model/trips-model';
-const tripsModel = new TripsModel();
+import MainPresenter from './presenter/main-presenter';
 
-const pageHeaderElement = document.querySelector('.page-header');
-const pageMainElement = document.querySelector('.page-main');
+const headerContainerElement = document.querySelector('.trip-main');
+const mainContainerElement = document.querySelector('.trip-events');
 
-const filtersElement = pageHeaderElement.querySelector('.trip-controls__filters');
-const tripEventsElement = pageMainElement.querySelector('.trip-events');
+const mainPresenter = new MainPresenter(headerContainerElement, mainContainerElement);
 
-const tripPresenter = new TripPresenter();
-
-render(new TripFiltersView(), filtersElement);
-tripPresenter.init(tripEventsElement, tripsModel);
+mainPresenter.init();

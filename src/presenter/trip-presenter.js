@@ -4,13 +4,15 @@ import TripSortView from '../view/trip-sort-view';
 import TripView from '../view/trip-view';
 
 import {render, replace, remove} from '../framework/render';
-import {isEscKeyDown} from '../utils';
+import {isEscKeyDown} from '../utils/main';
 import TripMessageView from '../view/trip-message-view';
 import {TripMessage} from '../const';
+import {filterByType} from '../utils/filter';
 
 export default class TripPresenter {
-  #tripContainer = null;
+  #container = null;
   #tripsModel = null;
+  #filterModel = null;
 
   #tripListComponent = new TripListView();
   #tripFormComponent = null;
@@ -19,23 +21,29 @@ export default class TripPresenter {
   #trips = [];
   #destinations = [];
   #offers = [];
+  #filteredTrips = [];
 
-  init = (tripContainer, tripsModel) => {
-    this.#tripContainer = tripContainer;
+  constructor(container, tripsModel, filterModel) {
+    this.#container = container;
     this.#tripsModel = tripsModel;
+    this.#filterModel = filterModel;
+  }
+
+  init = () => {
     this.#trips = [...this.#tripsModel.trips];
     this.#destinations = [...this.#tripsModel.destinations];
     this.#offers = [...this.#tripsModel.offers];
+    this.#filteredTrips = filterByType[this.#filterModel.activeFilter]([...this.#trips]);
 
     if (!this.#trips.length){
-      render(new TripMessageView(TripMessage.EMPTY_LIST), this.#tripContainer);
+      render(new TripMessageView(TripMessage.NO_EVENTS), this.#container);
       return;
     }
 
-    render(new TripSortView(), this.#tripContainer);
-    render(this.#tripListComponent, this.#tripContainer);
+    render(new TripSortView(), this.#container);
+    render(this.#tripListComponent, this.#container);
 
-    this.#trips.forEach(this.#renderTrip);
+    this.#filteredTrips.forEach(this.#renderTrip);
   };
 
   #renderTrip = (trip) => {
