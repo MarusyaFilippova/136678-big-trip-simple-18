@@ -1,4 +1,4 @@
-import {getRandomElement, getRandomInteger, shuffleElements} from '../utils';
+import {getRandomElement, getRandomInteger, shuffleElements} from '../utils/mock';
 import {getDestinations} from './destinations';
 import {getOffers} from './offers';
 
