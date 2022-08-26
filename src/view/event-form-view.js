@@ -1,4 +1,4 @@
-import {getFormattedDate} from '../utils';
+import {formatDate} from '../utils/date';
 import AbstractView from '../framework/view/abstract-view';
 
 const createTypeTemplate = (type, checked) => (`
@@ -117,8 +117,8 @@ const createEventFormTemplate = (event, destinations, offers) => {
   const offersSection = createOffersSection(eventOffers, offerByType?.offers);
   const destinationSection = createDestinationSection(eventDestination, destinations);
 
-  const startDate = getFormattedDate(dateFrom, 'DD/MM/YY HH:mm');
-  const endDate = getFormattedDate(dateTo, 'DD/MM/YY HH:mm');
+  const startDate = formatDate(dateFrom, 'DD/MM/YY HH:mm');
+  const endDate = formatDate(dateTo, 'DD/MM/YY HH:mm');
 
   return (`
     <li class="trip-events__item">

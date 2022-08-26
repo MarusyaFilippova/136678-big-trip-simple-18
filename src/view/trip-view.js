@@ -1,11 +1,12 @@
-import {getDuration, getFormattedDate, getFormattedTime} from '../utils';
+import {formatDate, formatTime} from '../utils/date';
 import AbstractView from '../framework/view/abstract-view';
+import {getTripDuration} from '../utils/trip';
 
 const createScheduleTemplate = (dateFrom, dateTo) => {
-  const fromTime = getFormattedTime(dateFrom);
-  const toTime = getFormattedTime(dateTo);
+  const fromTime = formatTime(dateFrom);
+  const toTime = formatTime(dateTo);
 
-  const duration = getDuration(dateFrom, dateTo);
+  const duration = getTripDuration(dateFrom, dateTo);
 
   return (`
     <div class="event__schedule">
@@ -32,8 +33,8 @@ const createOffersTemplate = (offers) => offers?.length ? offers.map(createOffer
 const createTripTemplate = ({basePrice, dateFrom, dateTo, destination, isFavorite, offers, type}) => {
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
 
-  const eventDate = getFormattedDate(dateFrom, 'DD MMM');
-  const eventDateTime = getFormattedDate(dateFrom);
+  const eventDate = formatDate(dateFrom, 'DD MMM');
+  const eventDateTime = formatDate(dateFrom);
 
   const offersTemplate = createOffersTemplate(offers);
 
