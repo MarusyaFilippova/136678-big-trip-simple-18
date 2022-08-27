@@ -2,20 +2,22 @@ import TripListView from '../view/trip-list-view';
 import TripMessageView from '../view/trip-message-view';
 import TripPresenter from './trip-presenter';
 import TripSortView from '../view/trip-sort-view';
+import SortModel from '../model/sort-model';
 import { filterByType } from '../utils/filter';
-import { render } from '../framework/render';
+import { remove, render } from '../framework/render';
 import { TripMessage } from '../const';
-import {updateItem} from '../utils/main';
+import { updateItem } from '../utils/main';
 
 export default class ListPresenter {
   #container = null;
   #tripsModel = null;
   #filterModel = null;
+  #sortModel = new SortModel();
 
   #tripListComponent = new TripListView();
+  #sortComponent = null;
 
   #trips = [];
-  #filteredTrips = [];
   #tripPresenter = new Map();
 
   constructor(container, tripsModel, filterModel) {
@@ -26,7 +28,6 @@ export default class ListPresenter {
 
   init = () => {
     this.#trips = [...this.#tripsModel.trips];
-    this.#filteredTrips = filterByType[this.#filterModel.activeFilter]([...this.#trips]);
 
     if (!this.#trips.length){
       this.#renderNoEvents();
@@ -37,6 +38,14 @@ export default class ListPresenter {
     this.#renderTripList();
   };
 
+  get #filteredTrips() {
+    const filteredTrips = filterByType[this.#filterModel.activeFilter]([...this.#trips]);
+
+    filteredTrips.sort(this.#sortModel.sort);
+
+    return filteredTrips;
+  }
+
   #handleModeChange = () => {
     this.#tripPresenter.forEach((presenter) => presenter.resetView());
   };
@@ -46,9 +55,21 @@ export default class ListPresenter {
     this.#tripPresenter.get(updatedTrip.id).init(updatedTrip);
   };
 
+  #handleSortTypeChange = (sortType) => {
+    if (this.#sortModel.type === sortType) {
+      return;
+    }
+
+    this.#sortModel.type = sortType;
+    this.#clearTripList();
+    this.#renderSort();
+    this.#renderTripList();
+  };
+
   #clearTripList = () => {
     this.#tripPresenter.forEach((presenter) => presenter.destroy());
     this.#tripPresenter.clear();
+    remove(this.#sortComponent);
   };
 
   #renderTripList = () => {
@@ -69,7 +90,9 @@ export default class ListPresenter {
   };
 
   #renderSort = () => {
-    render(new TripSortView(), this.#container);
+    this.#sortComponent = new TripSortView(this.#sortModel.sortColumns);
+    render(this.#sortComponent, this.#container);
+    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   };
 
   #renderNoEvents = () => {

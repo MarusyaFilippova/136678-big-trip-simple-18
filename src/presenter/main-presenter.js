@@ -1,5 +1,5 @@
 import AddEventButtonView from '../view/add-event-button-view';
-import FilterModel from '../model/filter-modal';
+import FilterModel from '../model/filter-model';
 import FilterPresenter from './filter-presenter';
 import InfoPresenter from './info-presenter';
 import ListPresenter from './list-presenter';

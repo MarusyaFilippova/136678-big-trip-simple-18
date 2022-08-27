@@ -1,13 +1,36 @@
-import {SortType} from '../const';
 import dayjs from 'dayjs';
-import {getDiffFromDates} from './date';
+import { getDiffFromDates } from './date';
+import { SortType } from '../const';
 
-const sortByType = {
-  [SortType.DAY]: (tripA, tripB) => dayjs(tripA.dateFrom) - dayjs(tripB.dateFrom),
-  [SortType.PRICE]: (tripA, tripB) => tripB.basePrice - tripA.basePrice,
-  [SortType.TIME]: (tripA, tripB) => getDiffFromDates(tripB.dateTo, tripB.dateFrom) - getDiffFromDates(tripA.dateTo, tripA.dateFrom),
+const sortTripByDay = (tripA, tripB) => dayjs(tripA.dateFrom) - dayjs(tripB.dateFrom);
+const sortTripByPrice = (tripA, tripB) => tripB.basePrice - tripA.basePrice;
+const sortTripByTime = (tripA, tripB) => getDiffFromDates(tripB.dateTo, tripB.dateFrom) - getDiffFromDates(tripA.dateTo, tripA.dateFrom);
+
+const SortColumn = {
+  [SortType.DAY]: {
+    type: SortType.DAY,
+    sort: sortTripByDay,
+  },
+  [SortType.EVENT]: {
+    type: SortType.EVENT,
+    sort: () => {},
+    disabled: true,
+  },
+  [SortType.TIME]: {
+    type: SortType.TIME,
+    sort: sortTripByTime,
+  },
+  [SortType.PRICE]: {
+    type: SortType.PRICE,
+    sort: sortTripByPrice,
+  },
+  [SortType.OFFERS]: {
+    type: SortType.OFFERS,
+    sort: () => {},
+    disabled: true,
+  },
 };
 
-const sortDate = (dateA, dateB) => dayjs(dateA) - dayjs(dateB);
+const sortByDate = (dateA, dateB) => dayjs(dateA) - dayjs(dateB);
 
-export {sortByType, sortDate};
+export {sortTripByDay, sortTripByTime, sortTripByPrice, sortByDate, SortColumn};
