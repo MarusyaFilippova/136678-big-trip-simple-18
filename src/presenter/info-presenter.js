@@ -1,8 +1,7 @@
 import TripInfoView from '../view/trip-info-view';
 import { formatTripDates, getEndPoint, getStartPoint } from '../utils/trip';
 import { render } from '../framework/render';
-import { sortByType, sortDate } from '../utils/sort';
-import { SortType} from '../const';
+import { sortByDate, sortTripByDay } from '../utils/sort';
 
 export default class InfoPresenter {
   #container = null;
@@ -19,7 +18,7 @@ export default class InfoPresenter {
   }
 
   init = () => {
-    this.#trips = [...this.#tripsModel.trips.sort(sortByType[SortType.DAY])];
+    this.#trips = [...this.#tripsModel.trips.sort(sortTripByDay)];
     this.#startPoint = getStartPoint(this.#trips);
     this.#endPoint = getEndPoint(this.#trips);
 
@@ -45,7 +44,7 @@ export default class InfoPresenter {
 
   #getDates() {
     const endDates = this.#trips.map((trip) => trip.dateTo);
-    const endDate = endDates.sort(sortDate)[endDates.length - 1];
+    const endDate = endDates.sort(sortByDate)[endDates.length - 1];
 
     return formatTripDates(this.#startPoint.dateFrom, endDate);
   }

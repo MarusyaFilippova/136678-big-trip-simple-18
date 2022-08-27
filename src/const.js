@@ -19,29 +19,4 @@ const TripMessage = {
   LOADING: 'Loading...',
 };
 
-const ColumnByType = {
-  [SortType.DAY]: {
-    type: SortType.DAY,
-    checked: true,
-  },
-  [SortType.EVENT]: {
-    type: SortType.EVENT,
-    checked: false,
-    disabled: true,
-  },
-  [SortType.TIME]: {
-    type: SortType.TIME,
-    checked: false,
-  },
-  [SortType.PRICE]: {
-    type: SortType.PRICE,
-    checked: false,
-  },
-  [SortType.OFFERS]: {
-    type: SortType.OFFERS,
-    checked: false,
-    disabled: true,
-  },
-};
-
-export {TripMessage, FilterType, SortType, ColumnByType};
+export { TripMessage, FilterType, SortType };

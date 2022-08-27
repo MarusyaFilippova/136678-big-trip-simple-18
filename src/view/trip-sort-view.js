@@ -1,5 +1,4 @@
 import AbstractView from '../framework/view/abstract-view';
-import {ColumnByType} from '../const';
 
 const createSortItemTemplate = ({type, checked = false, disabled = false}) => (`
   <div class="trip-sort__item  trip-sort__item--${type}">
@@ -12,7 +11,7 @@ const createSortItemTemplate = ({type, checked = false, disabled = false}) => (`
       ${checked ? 'checked' : ''}
       ${disabled ? 'disabled' : ''}
     >
-    <label class="trip-sort__btn" for="sort-day">${type}</label>
+    <label class="trip-sort__btn" for="sort-day" data-sort-type="${type}" data-disabled="${disabled}">${type}</label>
   </div>
 `);
 
@@ -26,9 +25,33 @@ const createTripSortTemplate = (items) => {
 };
 
 export default class TripSortView extends AbstractView {
-  #items = Object.values(ColumnByType);
+  #sortColumns = [];
+
+  constructor(sortColumns) {
+    super();
+    this.#sortColumns = sortColumns;
+  }
 
   get template() {
-    return createTripSortTemplate(this.#items);
+    return createTripSortTemplate(this.#sortColumns);
   }
+
+  setSortTypeChangeHandler = (callback) => {
+    this._callback.sortTypeChange = callback;
+    this.element.addEventListener('click', this.#sortTypeChangeHandler);
+  };
+
+  #sortTypeChangeHandler = (evt) => {
+    if (evt.target.tagName !== 'LABEL') {
+      return;
+    }
+
+    evt.preventDefault();
+
+    if (evt.target.dataset.disabled === 'true') {
+      return;
+    }
+
+    this._callback.sortTypeChange(evt.target.dataset.sortType);
+  };
 }
