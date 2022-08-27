@@ -1,9 +1,8 @@
-
 import TripInfoView from '../view/trip-info-view';
-import {render} from '../framework/render';
-import {sortByType, sortDate} from '../utils/sort';
-import {SortType} from '../const';
-import {formatTripDates, getEndPoint, getStartPoint} from '../utils/trip';
+import { formatTripDates, getEndPoint, getStartPoint } from '../utils/trip';
+import { render } from '../framework/render';
+import { sortByType, sortDate } from '../utils/sort';
+import { SortType} from '../const';
 
 export default class InfoPresenter {
   #container = null;

@@ -1,10 +1,10 @@
-import TripsModel from '../model/trips-model';
+import AddEventButtonView from '../view/add-event-button-view';
 import FilterModel from '../model/filter-modal';
 import FilterPresenter from './filter-presenter';
 import InfoPresenter from './info-presenter';
-import SortPresenter from './trip-presenter';
-import {render, RenderPosition} from '../framework/render';
-import AddEventButtonView from '../view/add-event-button-view';
+import ListPresenter from './list-presenter';
+import TripsModel from '../model/trips-model';
+import { render, RenderPosition } from '../framework/render';
 
 export default class MainPresenter {
   #headerContainer = null;
@@ -23,7 +23,7 @@ export default class MainPresenter {
 
     this.#infoPresenter = new InfoPresenter(this.#headerContainer, this.#tripsModel);
     this.#filterPresenter = new FilterPresenter(this.#headerContainer, this.#filterModel);
-    this.#tripPresenter = new SortPresenter(this.#mainContainer, this.#tripsModel, this.#filterModel);
+    this.#tripPresenter = new ListPresenter(this.#mainContainer, this.#tripsModel, this.#filterModel);
   }
 
   init() {
