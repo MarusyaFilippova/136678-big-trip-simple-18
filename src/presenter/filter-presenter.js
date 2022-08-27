@@ -1,5 +1,5 @@
-import { render } from '../framework/render';
 import TripFiltersView from '../view/trip-filters-view';
+import { render } from '../framework/render';
 
 export default class FilterPresenter {
   #container = null;
