@@ -192,6 +192,21 @@ export default class EventFormView extends AbstractStatefulView {
     this.updateElement({...event});
   };
 
+  setRollUpButtonClick = (callback) => {
+    this._callback.rollUpButtonClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollUpButtonHandler);
+  };
+
+  setFormSubmit = (callback) => {
+    this._callback.submit = callback;
+    this.#getFormElement().addEventListener('submit', this.#submitHandler);
+  };
+
+  setFormReset = (callback) => {
+    this._callback.reset = callback;
+    this.#getFormElement().addEventListener('reset', this.#resetHandler);
+  };
+
   #getFormElement() {
     return this.element.querySelector('.event--edit');
   }
@@ -265,21 +280,6 @@ export default class EventFormView extends AbstractStatefulView {
     this.updateElement({
       offers,
     });
-  };
-
-  setRollUpButtonClick = (callback) => {
-    this._callback.rollUpButtonClick = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollUpButtonHandler);
-  };
-
-  setFormSubmit = (callback) => {
-    this._callback.submit = callback;
-    this.#getFormElement().addEventListener('submit', this.#submitHandler);
-  };
-
-  setFormReset = (callback) => {
-    this._callback.reset = callback;
-    this.#getFormElement().addEventListener('reset', this.#resetHandler);
   };
 
   _restoreHandlers = () => {
