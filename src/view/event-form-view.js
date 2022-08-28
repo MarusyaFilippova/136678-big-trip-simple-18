@@ -1,16 +1,28 @@
-import {formatDate} from '../utils/date';
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+import { formatDate } from '../utils/date';
+
+const BLANK_EVENT = {
+  basePrice: null,
+  dateFrom: null,
+  dateTo: null,
+  destinationId: null,
+  isFavorite: false,
+  offers: [],
+  type: null,
+};
 
 const createTypeTemplate = (type, checked) => (`
   <div class="event__type-item">
-    <input id="event-type-${type}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${checked ? 'checked' : ''}>
+    <input id="event-type-${type}" class="event__type-input visually-hidden" type="radio" name="event-type" value="${type}" ${checked ? 'checked' : ''}>
     <label class="event__type-label event__type-label--${type}" for="event-type-${type}">${type}</label>
   </div>
 `);
 
 const createEventTypeTemplate = (types, type) => {
   const typesTemplate = types.map((item) => createTypeTemplate(item, item === type)).join('');
-  const icon = type ? `<img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">` : '';
+  const icon = type
+    ? `<img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">`
+    : '';
 
   return (`
     <div class="event__type-wrapper">
@@ -81,7 +93,7 @@ const createDestinationSection = (eventDestination, destinations) => {
 };
 
 const createOffersSection = (eventOffers, offers) => {
-  if (!eventOffers?.length) {
+  if (!offers?.length) {
     return '';
   }
 
@@ -120,6 +132,8 @@ const createEventFormTemplate = (event, destinations, offers) => {
   const startDate = formatDate(dateFrom, 'DD/MM/YY HH:mm');
   const endDate = formatDate(dateTo, 'DD/MM/YY HH:mm');
 
+  const isSubmitDisabled = !eventDestination;
+
   return (`
     <li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -140,9 +154,9 @@ const createEventFormTemplate = (event, destinations, offers) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input event__input--price" id="event-price" type="text" name="event-price" value="${basePrice || ''}">
+            <input class="event__input event__input--price" id="event-price" type="number" min="1" name="event-price" value="${basePrice || ''}">
           </div>
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+          <button class="event__save-btn btn btn--blue" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
           <button class="event__reset-btn" type="reset">Cancel</button>
           <button class="event__rollup-btn" type="button">
             <span class="visually-hidden">Close event</span>
@@ -157,31 +171,30 @@ const createEventFormTemplate = (event, destinations, offers) => {
   `);
 };
 
-export default class EventFormView extends AbstractView {
+export default class EventFormView extends AbstractStatefulView {
   #destinations = null;
   #offers = null;
-  #event = null;
 
-  constructor(offers, destinations, point) {
+  constructor(offers, destinations, event = BLANK_EVENT) {
     super();
     this.#destinations = destinations;
     this.#offers = offers;
 
-    this.#event = point ? point : this.#getNewEvent();
+    this._state = {...event};
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createEventFormTemplate(this.#event, this.#destinations, this.#offers);
+    return createEventFormTemplate(this._state, this.#destinations, this.#offers);
   }
+
+  reset = (event) => {
+    this.updateElement({...event});
+  };
 
   setRollUpButtonClick = (callback) => {
     this._callback.rollUpButtonClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollUpButtonHandler);
-  };
-
-  #rollUpButtonHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.rollUpButtonClick();
   };
 
   setFormSubmit = (callback) => {
@@ -189,14 +202,34 @@ export default class EventFormView extends AbstractView {
     this.#getFormElement().addEventListener('submit', this.#submitHandler);
   };
 
-  #submitHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.submit();
-  };
-
   setFormReset = (callback) => {
     this._callback.reset = callback;
     this.#getFormElement().addEventListener('reset', this.#resetHandler);
+  };
+
+  #getFormElement() {
+    return this.element.querySelector('.event--edit');
+  }
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__type-group')
+      .addEventListener('change', this.#typeChangeHandler);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('change', this.#priceChangeHandler);
+    this.element.querySelectorAll('.event__offer-checkbox')
+      .forEach((input) => input.addEventListener('click', this.#offerClickHandler));
+  };
+
+  #rollUpButtonHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.rollUpButtonClick();
+  };
+
+  #submitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.submit({...this._state});
   };
 
   #resetHandler = (evt) => {
@@ -204,19 +237,55 @@ export default class EventFormView extends AbstractView {
     this._callback.reset();
   };
 
-  #getFormElement() {
-    return this.element.querySelector('.event--edit');
-  }
+  #typeChangeHandler = (evt) => {
+    evt.preventDefault();
 
-  #getNewEvent() {
-    return ({
-      basePrice: null,
-      dateFrom: null,
-      dateTo: null,
-      destinationId: null,
-      isFavorite: false,
+    this.updateElement({
+      type: evt.target.value,
       offers: [],
-      type: null,
     });
-  }
+  };
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    this.updateElement({
+      destination: this.#destinations.find((destination) => destination.name === evt.target.value),
+    });
+  };
+
+  #priceChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    this.updateElement({
+      basePrice: Number(evt.target.value),
+    });
+  };
+
+  #offerClickHandler = (evt) => {
+    evt.preventDefault();
+    let offers = [...this._state.offers];
+
+    const offerId = Number(evt.target.id.replace('event-offer-', ''));
+
+    if (evt.target.checked) {
+      const offersByType = this.#offers.find((item) => item.type === this._state.type).offers;
+      const offer = offersByType.find(({id}) => offerId === id);
+      offers.push(offer);
+    }
+    else {
+      offers = this._state.offers.filter(({id}) => id !== offerId);
+    }
+
+    this.updateElement({
+      offers,
+    });
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setFormSubmit(this._callback.submit);
+    this.setFormReset(this._callback.reset);
+    this.setRollUpButtonClick(this._callback.rollUpButtonClick);
+  };
 }

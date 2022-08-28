@@ -71,6 +71,7 @@ export default class TripPresenter {
 
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#tripFormComponent.reset(this.#trip);
       this.#replaceFormToCard();
     }
   };
@@ -89,7 +90,10 @@ export default class TripPresenter {
   };
 
   #escKeyDownHandler = (evt) => {
-    isEscKeyDown(evt, this.#replaceFormToCard);
+    isEscKeyDown(evt, () => {
+      this.#tripFormComponent.reset(this.#trip);
+      this.#replaceFormToCard();
+    });
   };
 
   #handleEditClick = () => {
@@ -102,10 +106,12 @@ export default class TripPresenter {
   };
 
   #handleFormReset = () => {
+    this.#tripFormComponent.reset(this.#trip);
     this.#replaceFormToCard();
   };
 
   #handleFormClose = () => {
+    this.#tripFormComponent.reset(this.#trip);
     this.#replaceFormToCard();
   };
 
