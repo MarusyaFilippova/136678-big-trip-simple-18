@@ -1,5 +1,7 @@
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
-import { formatDate } from '../utils/date';
 
 const BLANK_EVENT = {
   basePrice: null,
@@ -13,7 +15,14 @@ const BLANK_EVENT = {
 
 const createTypeTemplate = (type, checked) => (`
   <div class="event__type-item">
-    <input id="event-type-${type}" class="event__type-input visually-hidden" type="radio" name="event-type" value="${type}" ${checked ? 'checked' : ''}>
+    <input
+      id="event-type-${type}"
+      class="event__type-input visually-hidden"
+      type="radio"
+      name="event-type"
+      value="${type}"
+      ${checked ? 'checked' : ''}
+    >
     <label class="event__type-label event__type-label--${type}" for="event-type-${type}">${type}</label>
   </div>
 `);
@@ -50,7 +59,15 @@ const createEventDestinationTemplate = (type, eventDestination, destinations) =>
       <label class="event__label event__type-output" for="event-destination">
         ${type || ''}
       </label>
-      <input class="event__input event__input--destination" id="event-destination" type="text" name="event-destination" value="${destination?.name || ''}" list="destination-list">
+      <input
+        class="event__input event__input--destination"
+        id="event-destination"
+        type="text"
+        name="event-destination"
+        value="${destination?.name || ''}"
+        list="destination-list"
+        required
+      >
       <datalist id="destination-list">
         ${optionsTemplate}
       </datalist>
@@ -60,7 +77,14 @@ const createEventDestinationTemplate = (type, eventDestination, destinations) =>
 
 const createOfferTemplate = ({id, title, price}, checked) => (`
   <div class="event__offer-selector">
-    <input class="event__offer-checkbox visually-hidden" id="event-offer-${id}" type="checkbox" name="event-offer-${id}" ${checked ? 'checked' : ''}>
+    <input
+      class="event__offer-checkbox visually-hidden"
+      id="event-offer-${id}"
+      type="checkbox"
+      name="event-offer-${id}"
+      ${checked ? 'checked' : ''}
+      required
+    >
     <label class="event__offer-label" for="event-offer-${id}">
       <span class="event__offer-title">${title}</span>
       &plus;&euro;&nbsp;
@@ -129,10 +153,7 @@ const createEventFormTemplate = (event, destinations, offers) => {
   const offersSection = createOffersSection(eventOffers, offerByType?.offers);
   const destinationSection = createDestinationSection(eventDestination, destinations);
 
-  const startDate = formatDate(dateFrom, 'DD/MM/YY HH:mm');
-  const endDate = formatDate(dateTo, 'DD/MM/YY HH:mm');
-
-  const isSubmitDisabled = !eventDestination;
+  const isSubmitDisabled = !dateFrom | !dateTo | !type | !eventDestination;
 
   return (`
     <li class="trip-events__item">
@@ -143,10 +164,22 @@ const createEventFormTemplate = (event, destinations, offers) => {
 
           <div class="event__field-group event__field-group--time">
             <label class="visually-hidden" for="event-start-time">From</label>
-            <input class="event__input event__input--time" id="event-start-time" type="text" name="event-start-time" value="${startDate}">
+            <input
+              class="event__input event__input--time"
+              id="event-start-time"
+              type="text"
+              name="event-start-time"
+              required
+            >
             &mdash;
             <label class="visually-hidden" for="event-end-time">To</label>
-            <input class="event__input event__input--time" id="event-end-time" type="text" name="event-end-time" value="${endDate}">
+            <input
+              class="event__input event__input--time"
+              id="event-end-time"
+              type="text"
+              name="event-end-time"
+              required
+            >
           </div>
 
           <div class="event__field-group event__field-group--price">
@@ -154,7 +187,15 @@ const createEventFormTemplate = (event, destinations, offers) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input event__input--price" id="event-price" type="number" min="1" name="event-price" value="${basePrice || ''}">
+            <input
+              class="event__input event__input--price"
+              id="event-price"
+              type="number"
+              min="1"
+              name="event-price"
+              value="${basePrice || ''}"
+              required
+            >
           </div>
           <button class="event__save-btn btn btn--blue" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
           <button class="event__reset-btn" type="reset">Cancel</button>
@@ -172,6 +213,8 @@ const createEventFormTemplate = (event, destinations, offers) => {
 };
 
 export default class EventFormView extends AbstractStatefulView {
+  #datepicker = null;
+
   #destinations = null;
   #offers = null;
 
@@ -187,6 +230,15 @@ export default class EventFormView extends AbstractStatefulView {
   get template() {
     return createEventFormTemplate(this._state, this.#destinations, this.#offers);
   }
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
+  };
 
   reset = (event) => {
     this.updateElement({...event});
@@ -211,6 +263,47 @@ export default class EventFormView extends AbstractStatefulView {
     return this.element.querySelector('.event--edit');
   }
 
+  #startTimeChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate?.toISOString(),
+    });
+  };
+
+  #endTimeChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate?.toISOString(),
+    });
+  };
+
+
+  #setDatepicker = () => {
+    const { dateFrom, dateTo } = this._state;
+    const startDate = dateFrom && new Date(dateFrom);
+    const endDate = dateTo && new Date(dateTo);
+
+    this.#datepicker = flatpickr(
+      this.element.querySelector('#event-start-time'),
+      {
+        defaultDate: startDate,
+        enableTime: true,
+        maxDate: endDate,
+        dateFormat: 'd/m/y H:i',
+        onChange: this.#startTimeChangeHandler,
+      },
+    );
+
+    this.#datepicker = flatpickr(
+      this.element.querySelector('#event-end-time'),
+      {
+        defaultDate: endDate,
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        minDate: startDate,
+        onChange: this.#endTimeChangeHandler,
+      },
+    );
+  };
+
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group')
       .addEventListener('change', this.#typeChangeHandler);
@@ -220,20 +313,24 @@ export default class EventFormView extends AbstractStatefulView {
       .addEventListener('change', this.#priceChangeHandler);
     this.element.querySelectorAll('.event__offer-checkbox')
       .forEach((input) => input.addEventListener('click', this.#offerClickHandler));
+    this.#setDatepicker();
   };
 
   #rollUpButtonHandler = (evt) => {
     evt.preventDefault();
+
     this._callback.rollUpButtonClick();
   };
 
   #submitHandler = (evt) => {
     evt.preventDefault();
+
     this._callback.submit({...this._state});
   };
 
   #resetHandler = (evt) => {
     evt.preventDefault();
+
     this._callback.reset();
   };
 

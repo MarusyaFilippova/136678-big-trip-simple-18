@@ -24,10 +24,10 @@ const formatDuration = (days, hours, minutes) => {
 
 const getTripDuration = (dateFrom, dateTo) => {
   const formattedDateFrom = dayjs(dateFrom).set('second', 0);
-  const formattedDatTo = dayjs(dateTo).set('second', 0);
+  const formattedDateTo = dayjs(dateTo).set('second', 0);
 
-  const diffDay = dayjs(formattedDatTo).diff(dayjs(formattedDateFrom), 'day', true);
-  const diffHour = dayjs(formattedDatTo).diff(dayjs(formattedDateFrom), 'hour', true);
+  const diffDay = dayjs(formattedDateTo).diff(dayjs(formattedDateFrom), 'day', true);
+  const diffHour = dayjs(formattedDateTo).diff(dayjs(formattedDateFrom), 'hour', true);
 
   const days = Math.floor(diffDay);
   const hours = Math.floor(diffHour - (days * 24));
