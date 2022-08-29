@@ -213,7 +213,8 @@ const createEventFormTemplate = (event, destinations, offers) => {
 };
 
 export default class EventFormView extends AbstractStatefulView {
-  #datepicker = null;
+  #startDatepicker = null;
+  #endDatepicker = null;
 
   #destinations = null;
   #offers = null;
@@ -234,9 +235,14 @@ export default class EventFormView extends AbstractStatefulView {
   removeElement = () => {
     super.removeElement();
 
-    if (this.#datepicker) {
-      this.#datepicker.destroy();
-      this.#datepicker = null;
+    if (this.#startDatepicker) {
+      this.#startDatepicker.destroy();
+      this.#startDatepicker = null;
+    }
+
+    if (this.#endDatepicker) {
+      this.#endDatepicker.destroy();
+      this.#endDatepicker = null;
     }
   };
 
@@ -275,13 +281,12 @@ export default class EventFormView extends AbstractStatefulView {
     });
   };
 
-
   #setDatepicker = () => {
     const { dateFrom, dateTo } = this._state;
     const startDate = dateFrom && new Date(dateFrom);
     const endDate = dateTo && new Date(dateTo);
 
-    this.#datepicker = flatpickr(
+    this.#startDatepicker = flatpickr(
       this.element.querySelector('#event-start-time'),
       {
         defaultDate: startDate,
@@ -292,7 +297,7 @@ export default class EventFormView extends AbstractStatefulView {
       },
     );
 
-    this.#datepicker = flatpickr(
+    this.#endDatepicker = flatpickr(
       this.element.querySelector('#event-end-time'),
       {
         defaultDate: endDate,
