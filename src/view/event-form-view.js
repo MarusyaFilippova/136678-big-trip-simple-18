@@ -83,7 +83,6 @@ const createOfferTemplate = ({id, title, price}, checked) => (`
       type="checkbox"
       name="event-offer-${id}"
       ${checked ? 'checked' : ''}
-      required
     >
     <label class="event__offer-label" for="event-offer-${id}">
       <span class="event__offer-title">${title}</span>
@@ -137,6 +136,7 @@ const createOffersSection = (eventOffers, offers) => {
 
 const createEventFormTemplate = (event, destinations, offers) => {
   const {
+    id,
     basePrice,
     dateFrom,
     dateTo,
@@ -152,6 +152,12 @@ const createEventFormTemplate = (event, destinations, offers) => {
   const destinationTemplate = createEventDestinationTemplate(type, eventDestination, destinations);
   const offersSection = createOffersSection(eventOffers, offerByType?.offers);
   const destinationSection = createDestinationSection(eventDestination, destinations);
+
+  const buttonCloseTemplate = id
+    ? `<button class="event__rollup-btn" type="button">
+        <span class="visually-hidden">Close event</span>
+      </button>`
+    : '';
 
   const isSubmitDisabled = !dateFrom | !dateTo | !type | !eventDestination;
 
@@ -198,10 +204,8 @@ const createEventFormTemplate = (event, destinations, offers) => {
             >
           </div>
           <button class="event__save-btn btn btn--blue" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
-          <button class="event__reset-btn" type="reset">Cancel</button>
-          <button class="event__rollup-btn" type="button">
-            <span class="visually-hidden">Close event</span>
-          </button>
+          <button class="event__reset-btn" type="reset">${id ? 'Delete' : 'Cancel'}</button>
+          ${buttonCloseTemplate}
         </header>
         <section class="event__details">
           ${offersSection}
@@ -251,8 +255,12 @@ export default class EventFormView extends AbstractStatefulView {
   };
 
   setRollUpButtonClick = (callback) => {
-    this._callback.rollUpButtonClick = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollUpButtonHandler);
+    const rollupButtonElement = this.element.querySelector('.event__rollup-btn');
+
+    if (rollupButtonElement) {
+      this._callback.rollUpButtonClick = callback;
+      rollupButtonElement.addEventListener('click', this.#rollUpButtonHandler);
+    }
   };
 
   setFormSubmit = (callback) => {
@@ -263,6 +271,11 @@ export default class EventFormView extends AbstractStatefulView {
   setFormReset = (callback) => {
     this._callback.reset = callback;
     this.#getFormElement().addEventListener('reset', this.#resetHandler);
+  };
+
+  setFormDelete = (callback) => {
+    this._callback.delete = callback;
+    this.#getFormElement().addEventListener('reset', this.#deleteHandler);
   };
 
   #getFormElement() {
@@ -333,6 +346,12 @@ export default class EventFormView extends AbstractStatefulView {
     this._callback.submit({...this._state});
   };
 
+  #deleteHandler = (evt) => {
+    evt.preventDefault();
+
+    this._callback.delete({...this._state});
+  };
+
   #resetHandler = (evt) => {
     evt.preventDefault();
 
@@ -388,6 +407,7 @@ export default class EventFormView extends AbstractStatefulView {
     this.#setInnerHandlers();
     this.setFormSubmit(this._callback.submit);
     this.setFormReset(this._callback.reset);
+    this.setFormDelete(this._callback.delete);
     this.setRollUpButtonClick(this._callback.rollUpButtonClick);
   };
 }

@@ -5,8 +5,7 @@ import TripSortView from '../view/trip-sort-view';
 import SortModel from '../model/sort-model';
 import { filterByType } from '../utils/filter';
 import { remove, render } from '../framework/render';
-import { TripMessage } from '../const';
-import { updateItem } from '../utils/main';
+import { SortType, TripMessage, UpdateType, UserAction } from '../const';
 
 export default class ListPresenter {
   #container = null;
@@ -17,42 +16,60 @@ export default class ListPresenter {
   #tripListComponent = new TripListView();
   #sortComponent = null;
 
-  #trips = [];
   #tripPresenter = new Map();
 
   constructor(container, tripsModel, filterModel) {
     this.#container = container;
     this.#tripsModel = tripsModel;
     this.#filterModel = filterModel;
+
+    this.#tripsModel.addObserver(this.#handleModelEvent);
   }
 
-  init = () => {
-    this.#trips = [...this.#tripsModel.trips];
-
-    if (!this.#trips.length){
-      this.#renderNoEvents();
-      return;
-    }
-
-    this.#renderSort();
-    this.#renderTripList();
-  };
-
-  get #filteredTrips() {
-    const filteredTrips = filterByType[this.#filterModel.activeFilter]([...this.#trips]);
+  get trips() {
+    const filteredTrips = filterByType[this.#filterModel.activeFilter]([...this.#tripsModel.trips]);
 
     filteredTrips.sort(this.#sortModel.sort);
 
     return filteredTrips;
   }
 
-  #handleModeChange = () => {
-    this.#tripPresenter.forEach((presenter) => presenter.resetView());
+  init = () => {
+    this.#renderTripSection();
   };
 
-  #handleTripChange = (updatedTrip) => {
-    this.#trips = updateItem(this.#trips, updatedTrip);
-    this.#tripPresenter.get(updatedTrip.id).init(updatedTrip);
+  #handleViewAction = async (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_TRIP:
+        this.#tripsModel.updateTrip(updateType, update);
+        break;
+      case UserAction.ADD_TRIP:
+        this.#tripsModel.addTrip(updateType, update);
+        break;
+      case UserAction.DELETE_TRIP:
+        this.#tripsModel.deleteTrip(updateType, update);
+        break;
+    }
+  };
+
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#tripPresenter.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#clearTripSection();
+        this.#renderTripSection();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearTripSection({resetSortType: true});
+        this.#renderTripSection();
+        break;
+    }
+  };
+
+  #handleModeChange = () => {
+    this.#tripPresenter.forEach((presenter) => presenter.resetView());
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -61,31 +78,46 @@ export default class ListPresenter {
     }
 
     this.#sortModel.type = sortType;
-    this.#clearTripList();
-    this.#renderSort();
-    this.#renderTripList();
+    this.#clearTripSection();
+    this.#renderTripSection();
   };
 
-  #clearTripList = () => {
+  #clearTripSection = (resetSortType = false) => {
     this.#tripPresenter.forEach((presenter) => presenter.destroy());
     this.#tripPresenter.clear();
     remove(this.#sortComponent);
+
+    if (resetSortType) {
+      this.#sortModel.type = SortType.DAY;
+    }
+  };
+
+  #renderTripSection = () => {
+    const trips = this.trips;
+    const tripCount = trips.length;
+
+    if (!tripCount){
+      this.#renderNoEvents();
+      return;
+    }
+
+    this.#renderSort();
+    this.#renderTripList();
   };
 
   #renderTripList = () => {
     render(this.#tripListComponent, this.#container);
 
-    this.#filteredTrips.forEach((trip) => this.#renderTrip(trip));
+    this.trips.forEach((trip) => this.#renderTrip(trip));
   };
 
   #renderTrip = (trip) => {
     const tripPresenter = new TripPresenter(
       this.#tripListComponent,
-      this.#tripsModel,
-      this.#handleTripChange,
-      this.#handleModeChange
+      this.#handleViewAction,
+      this.#handleModeChange,
     );
-    tripPresenter.init(trip);
+    tripPresenter.init(trip, this.#tripsModel);
     this.#tripPresenter.set(trip.id, tripPresenter);
   };
 

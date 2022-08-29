@@ -19,4 +19,22 @@ const TripMessage = {
   LOADING: 'Loading...',
 };
 
-export { TripMessage, FilterType, SortType };
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+const UserAction = {
+  UPDATE_TRIP: 'UPDATE_TRIP',
+  ADD_TRIP: 'ADD_TRIP',
+  DELETE_TRIP: 'DELETE_TRIP',
+};
+
+export {
+  FilterType,
+  SortType,
+  TripMessage,
+  UpdateType,
+  UserAction,
+};
