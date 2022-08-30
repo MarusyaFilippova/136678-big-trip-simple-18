@@ -5,7 +5,7 @@ import TripSortView from '../view/trip-sort-view';
 import SortModel from '../model/sort-model';
 import { filterByType } from '../utils/filter';
 import { remove, render } from '../framework/render';
-import {SortType, NoEventsMessage, UpdateType, UserAction, FilterType} from '../const';
+import { SortType, NoEventsMessage, UpdateType, UserAction } from '../const';
 
 export default class ListPresenter {
   #container = null;
@@ -133,7 +133,7 @@ export default class ListPresenter {
   };
 
   #renderNoEvents = () => {
-    this.#noEventComponent = new TripMessageView(NoEventsMessage[this.#filterModel.filter])
+    this.#noEventComponent = new TripMessageView(NoEventsMessage[this.#filterModel.filter]);
     render(this.#noEventComponent, this.#container);
   };
 }
