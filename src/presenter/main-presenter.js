@@ -22,7 +22,7 @@ export default class MainPresenter {
     this.#mainContainer = mainContainer;
 
     this.#infoPresenter = new InfoPresenter(this.#headerContainer, this.#tripsModel);
-    this.#filterPresenter = new FilterPresenter(this.#headerContainer, this.#filterModel);
+    this.#filterPresenter = new FilterPresenter(this.#headerContainer, this.#filterModel, this.#tripsModel);
     this.#tripPresenter = new ListPresenter(this.#mainContainer, this.#tripsModel, this.#filterModel);
   }
 

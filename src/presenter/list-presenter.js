@@ -24,10 +24,13 @@ export default class ListPresenter {
     this.#filterModel = filterModel;
 
     this.#tripsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get trips() {
-    const filteredTrips = filterByType[this.#filterModel.activeFilter]([...this.#tripsModel.trips]);
+    const trips = this.#tripsModel.trips;
+    const filterType = this.#filterModel.filter;
+    const filteredTrips = filterByType[filterType](trips);
 
     filteredTrips.sort(this.#sortModel.sort);
 
@@ -55,7 +58,7 @@ export default class ListPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#tripPresenter.get(data.id).init(data);
+        this.#tripPresenter.get(data.id).init(data, this.#tripsModel);
         break;
       case UpdateType.MINOR:
         this.#clearTripSection();

@@ -15,7 +15,7 @@ const createFilterTemplate = ({type, checked, disabled}) => (`
 `);
 
 const createTripFiltersTemplate = (filters) => {
-  const filtersTemplate = Object.values(filters).map(createFilterTemplate).join('');
+  const filtersTemplate = filters.map(createFilterTemplate).join('');
   return (`
     <div class="trip-main__trip-controls trip-controls">
       <div class="trip-controls__filters">
@@ -30,7 +30,7 @@ const createTripFiltersTemplate = (filters) => {
 };
 
 export default class TripFiltersView extends AbstractView {
-  #filters = {};
+  #filters = [];
 
   constructor(filters) {
     super();
@@ -41,25 +41,13 @@ export default class TripFiltersView extends AbstractView {
     return createTripFiltersTemplate(this.#filters);
   }
 
-  #getFilterByType(type) {
-    return this.#filters[type];
-  }
-
-  setFilterClick = (callback) => {
-    this._callback.click = callback;
-    this.element.addEventListener('click', this.#filterHandler);
+  setFilterTypeChangeHandler = (callback) => {
+    this._callback.filterTypeChange = callback;
+    this.element.addEventListener('change', this.#filterTypeChangeHandler);
   };
 
-  #filterHandler = (evt) => {
+  #filterTypeChangeHandler = (evt) => {
     evt.preventDefault();
-    const type = evt.target.getAttribute('data-type');
-    const filter = type ? this.#getFilterByType(type) : null;
-
-    if (!this.#checkTargetClass(evt.target) || !type || filter.disabled || filter.checked) {
-      return;
-    }
-    this._callback.click(type);
+    this._callback.filterTypeChange(evt.target.value);
   };
-
-  #checkTargetClass = (target) => target.classList.contains('trip-filters__filter-label');
 }
