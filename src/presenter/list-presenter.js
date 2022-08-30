@@ -5,7 +5,7 @@ import TripSortView from '../view/trip-sort-view';
 import SortModel from '../model/sort-model';
 import { filterByType } from '../utils/filter';
 import { remove, render } from '../framework/render';
-import { SortType, TripMessage, UpdateType, UserAction } from '../const';
+import {SortType, NoEventsMessage, UpdateType, UserAction, FilterType} from '../const';
 
 export default class ListPresenter {
   #container = null;
@@ -15,6 +15,7 @@ export default class ListPresenter {
 
   #tripListComponent = new TripListView();
   #sortComponent = null;
+  #noEventComponent = null;
 
   #tripPresenter = new Map();
 
@@ -89,6 +90,7 @@ export default class ListPresenter {
     this.#tripPresenter.forEach((presenter) => presenter.destroy());
     this.#tripPresenter.clear();
     remove(this.#sortComponent);
+    remove(this.#noEventComponent);
 
     if (resetSortType) {
       this.#sortModel.type = SortType.DAY;
@@ -131,6 +133,7 @@ export default class ListPresenter {
   };
 
   #renderNoEvents = () => {
-    render(new TripMessageView(TripMessage.NO_EVENTS), this.#container);
+    this.#noEventComponent = new TripMessageView(NoEventsMessage[this.#filterModel.filter])
+    render(this.#noEventComponent, this.#container);
   };
 }

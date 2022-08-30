@@ -12,11 +12,10 @@ const SortType = {
   OFFERS: 'offers',
 };
 
-const TripMessage = {
-  NO_FUTURE_EVENTS: 'There are no future events now',
-  NO_PAST_EVENTS: 'There are no past events now',
-  NO_EVENTS: 'Click New Event to create your first point',
-  LOADING: 'Loading...',
+const NoEventsMessage = {
+  [FilterType.EVERYTHING]: 'Click New Event to create your first point',
+  [FilterType.FUTURE]: 'There are no future events now',
+  [FilterType.PAST]: 'There are no past events now',
 };
 
 const UpdateType = {
@@ -34,7 +33,7 @@ const UserAction = {
 export {
   FilterType,
   SortType,
-  TripMessage,
+  NoEventsMessage,
   UpdateType,
   UserAction,
 };
