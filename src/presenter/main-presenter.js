@@ -17,6 +17,8 @@ export default class MainPresenter {
   #filterPresenter = null;
   #tripPresenter = null;
 
+  #newTripButtonComponent = new AddEventButtonView();
+
   constructor(headerContainer, mainContainer) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
@@ -30,6 +32,17 @@ export default class MainPresenter {
     this.#infoPresenter.init();
     this.#filterPresenter.init();
     this.#tripPresenter.init();
-    render(new AddEventButtonView(), this.#headerContainer, RenderPosition.BEFOREEND);
+
+    render(this.#newTripButtonComponent, this.#headerContainer, RenderPosition.BEFOREEND);
+    this.#newTripButtonComponent.setClickHandler(this.#handleNewTripButtonClick);
   }
+
+  #handleNewTripFormClose = () => {
+    this.#newTripButtonComponent.element.disabled = false;
+  };
+
+  #handleNewTripButtonClick = () => {
+    this.#tripPresenter.createTrip(this.#handleNewTripFormClose);
+    this.#newTripButtonComponent.element.disabled = true;
+  };
 }

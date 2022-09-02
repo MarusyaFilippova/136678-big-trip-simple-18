@@ -1,11 +1,12 @@
 import TripListView from '../view/trip-list-view';
 import TripMessageView from '../view/trip-message-view';
 import TripPresenter from './trip-presenter';
+import TripNewPresenter from './trip-new-presenter';
 import TripSortView from '../view/trip-sort-view';
 import SortModel from '../model/sort-model';
 import { filterByType } from '../utils/filter';
 import { remove, render } from '../framework/render';
-import { SortType, NoEventsMessage, UpdateType, UserAction } from '../const';
+import { SortType, NoEventsMessage, UpdateType, UserAction, FilterType } from '../const';
 
 export default class ListPresenter {
   #container = null;
@@ -18,11 +19,14 @@ export default class ListPresenter {
   #noEventComponent = null;
 
   #tripPresenter = new Map();
+  #tripNewPresenter = null;
 
   constructor(container, tripsModel, filterModel) {
     this.#container = container;
     this.#tripsModel = tripsModel;
     this.#filterModel = filterModel;
+
+    this.#tripNewPresenter = new TripNewPresenter(this.#tripListComponent, this.#handleViewAction, this.#tripsModel);
 
     this.#tripsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -42,6 +46,12 @@ export default class ListPresenter {
     this.#renderTripSection();
   };
 
+  createTrip = (callback) => {
+    this.#sortModel.type = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#tripNewPresenter.init(callback);
+  };
+
   #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_TRIP:
@@ -59,7 +69,7 @@ export default class ListPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#tripPresenter.get(data.id).init(data, this.#tripsModel);
+        this.#tripPresenter.get(data.id).init(data, this.#tripsModel, this.#filterModel);
         break;
       case UpdateType.MINOR:
         this.#clearTripSection();
@@ -73,6 +83,7 @@ export default class ListPresenter {
   };
 
   #handleModeChange = () => {
+    this.#tripNewPresenter.destroy();
     this.#tripPresenter.forEach((presenter) => presenter.resetView());
   };
 
@@ -87,6 +98,7 @@ export default class ListPresenter {
   };
 
   #clearTripSection = (resetSortType = false) => {
+    this.#tripNewPresenter.destroy();
     this.#tripPresenter.forEach((presenter) => presenter.destroy());
     this.#tripPresenter.clear();
     remove(this.#sortComponent);
