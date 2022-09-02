@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import {formatDate} from './date';
+import he from 'he';
+import { formatDate } from './date';
 
 const getStartPoint = (trips) => [...trips].sort((tripA, tripB) => dayjs(tripA.dateFrom) - dayjs(tripB.dateFrom))[0];
 const getEndPoint = (trips) => [...trips].sort((tripA, tripB) => dayjs(tripA.dateTo) - dayjs(tripB.dateTo))[trips.length - 1];
@@ -36,4 +37,6 @@ const getTripDuration = (dateFrom, dateTo) => {
   return formatDuration(days, hours, minutes);
 };
 
-export { getStartPoint, getEndPoint, getTripDuration, formatTripDates };
+const encodeValue = (value) => he.encode(value);
+
+export { encodeValue, getStartPoint, getEndPoint, getTripDuration, formatTripDates };

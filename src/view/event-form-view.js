@@ -2,6 +2,7 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+import { encodeValue } from '../utils/trip';
 
 const BLANK_EVENT = {
   basePrice: null,
@@ -104,7 +105,7 @@ const createDestinationSection = (eventDestination, destinations) => {
   return (`
     <section class="event__section event__section--destination">
       <h3 class="event__section-title event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${destination?.description || ''}</p>
+      <p class="event__destination-description">${destination ? encodeValue(destination.description) : ''}</p>
 
       <div class="event__photos-container">
         <div class="event__photos-tape">

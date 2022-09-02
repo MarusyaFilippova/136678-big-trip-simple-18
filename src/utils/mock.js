@@ -8,4 +8,4 @@ const getRandomElement = (elements) => elements[getRandomInteger(0, elements.len
 
 const shuffleElements = (elements) => elements.sort(() => Math.random() - 0.5);
 
-export {getRandomElement, getRandomInteger, shuffleElements};
+export { getRandomElement, getRandomInteger, shuffleElements };
