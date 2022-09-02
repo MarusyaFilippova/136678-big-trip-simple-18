@@ -1,33 +1,15 @@
+import Observable from '../framework/observable';
 import { FilterType } from '../const';
 
-export default class FilterModel {
-  #activeFilter = FilterType.EVERYTHING;
-  #disabledFilters = [];
+export default class FilterModel extends Observable {
+  #filter = FilterType.EVERYTHING;
 
-  get filters() {
-    return Object.values(FilterType).reduce((filters, type) => {
-      filters[type] = {
-        type,
-        checked: type === this.#activeFilter,
-        disabled: this.disabledFilters.includes(type),
-      };
-      return filters;
-    }, {});
+  get filter() {
+    return this.#filter;
   }
 
-  get activeFilter() {
-    return this.#activeFilter;
-  }
-
-  set activeFilter(type) {
-    this.#activeFilter = type;
-  }
-
-  get disabledFilters() {
-    return this.#disabledFilters;
-  }
-
-  set disabledFilters(filters) {
-    this.#disabledFilters = filters;
-  }
+  setFilter = (updateType, filter) => {
+    this.#filter = filter;
+    this._notify(updateType, filter);
+  };
 }

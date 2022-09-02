@@ -1,5 +1,7 @@
 import EventFormView from '../view/event-form-view';
 import TripView from '../view/trip-view';
+import { UpdateType, UserAction } from '../const';
+import { isDatesEqual } from '../utils/date';
 import { isEscKeyDown } from '../utils/main';
 import { remove, render, replace } from '../framework/render';
 
@@ -23,17 +25,17 @@ export default class TripPresenter {
   #destinations = null;
   #offers = null;
 
-  constructor(container, tripsModel, changeData, changeMode) {
+  constructor(container, changeData, changeMode) {
     this.#container = container;
-    this.#tripsModel = tripsModel;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
-    this.#destinations = [...this.#tripsModel.destinations];
-    this.#offers = [...this.#tripsModel.offers];
   }
 
-  init = (trip) => {
+  init = (trip, tripsModel) => {
     this.#trip = trip;
+    this.#tripsModel = tripsModel;
+    this.#destinations = [...this.#tripsModel.destinations];
+    this.#offers = [...this.#tripsModel.offers];
 
     const prevTripComponent = this.#tripComponent;
     const prevTripFormComponent = this.#tripFormComponent;
@@ -45,7 +47,7 @@ export default class TripPresenter {
     this.#tripComponent.setFavoriteClick(this.#handleFavoriteClick);
     this.#tripFormComponent.setRollUpButtonClick(this.#handleFormClose);
     this.#tripFormComponent.setFormSubmit(this.#handleFormSubmit);
-    this.#tripFormComponent.setFormReset(this.#handleFormReset);
+    this.#tripFormComponent.setFormDelete(this.#handleFormDelete);
 
     if (prevTripComponent === null) {
       render(this.#tripComponent, this.#container.element);
@@ -101,13 +103,22 @@ export default class TripPresenter {
   };
 
   #handleFormSubmit = (trip) => {
-    this.#changeData(trip);
+    const isMinorUpdate = !isDatesEqual(this.#trip.dateFrom, trip.dateFrom);
+
+    this.#changeData(
+      UserAction.UPDATE_TRIP,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      trip,
+    );
     this.#replaceFormToCard();
   };
 
-  #handleFormReset = () => {
-    this.#tripFormComponent.reset(this.#trip);
-    this.#replaceFormToCard();
+  #handleFormDelete = (trip) => {
+    this.#changeData(
+      UserAction.DELETE_TRIP,
+      UpdateType.MINOR,
+      trip,
+    );
   };
 
   #handleFormClose = () => {
@@ -116,6 +127,10 @@ export default class TripPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({...this.#trip, isFavorite: !this.#trip.isFavorite});
+    this.#changeData(
+      UserAction.UPDATE_TRIP,
+      UpdateType.MINOR,
+      {...this.#trip, isFavorite: !this.#trip.isFavorite},
+    );
   };
 }

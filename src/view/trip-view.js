@@ -1,6 +1,6 @@
-import {formatDate, formatTime} from '../utils/date';
 import AbstractView from '../framework/view/abstract-view';
-import {getTripDuration} from '../utils/trip';
+import { formatDate, formatTime } from '../utils/date';
+import { encodeValue, getTripDuration } from '../utils/trip';
 
 const createScheduleTemplate = (dateFrom, dateTo) => {
   const fromTime = formatTime(dateFrom);
@@ -45,7 +45,7 @@ const createTripTemplate = ({basePrice, dateFrom, dateTo, destination, isFavorit
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${destination.name}</h3>
+        <h3 class="event__title">${type} ${destination ? encodeValue(destination.name) : ''}</h3>
         ${createScheduleTemplate(dateFrom, dateTo)}
         <p class="event__price">
           &euro;&nbsp;<span class="event__price-value">${basePrice}</span>

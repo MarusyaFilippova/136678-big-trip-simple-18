@@ -33,4 +33,4 @@ const SortColumn = {
 
 const sortByDate = (dateA, dateB) => dayjs(dateA) - dayjs(dateB);
 
-export {sortTripByDay, sortTripByTime, sortTripByPrice, sortByDate, SortColumn};
+export { sortTripByDay, sortTripByTime, sortTripByPrice, sortByDate, SortColumn };

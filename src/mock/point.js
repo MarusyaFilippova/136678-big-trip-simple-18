@@ -19,8 +19,8 @@ export const generatePoint = () => {
   return ({
     id: getRandomInteger(0, 1000),
     basePrice: getRandomInteger(500, 1500),
-    dateFrom: `2022-01-0${getRandomInteger(1, 4)}T11:55:56`,
-    dateTo: `2022-01-0${getRandomInteger(4, 9)}T15:55:13`,
+    dateFrom: `2022-0${getRandomInteger(8, 9)}-2${getRandomInteger(1, 9)}T11:55:56`,
+    dateTo: `2022-09-2${getRandomInteger(4, 9)}T15:55:13`,
     destination: getRandomElement(initialDestinations).id,
     isFavorite: Boolean(getRandomInteger(0, 1)),
     offers,
