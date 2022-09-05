@@ -120,8 +120,6 @@ export default class ListPresenter {
     const events = this.events;
     const eventCount = events.length;
 
-    console.log('this.#isLoading', this.#isLoading)
-
     if (this.#isLoading) {
       this.#renderLoading();
       return;
@@ -132,7 +130,6 @@ export default class ListPresenter {
       return;
     }
 
-    console.log('- - - render Sort')
     this.#renderSort();
     this.#renderEventList();
   };
