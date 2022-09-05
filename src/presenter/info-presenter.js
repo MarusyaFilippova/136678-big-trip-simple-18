@@ -1,33 +1,33 @@
 import TripInfoView from '../view/trip-info-view';
 import { formatTripDates, getEndPoint, getStartPoint } from '../utils/trip';
-import { render } from '../framework/render';
+import {render, RenderPosition} from '../framework/render';
 import { sortByDate, sortTripByDay } from '../utils/sort';
 
 export default class InfoPresenter {
   #container = null;
-  #tripsModel = null;
+  #pointsModel = null;
 
-  #trips = [];
+  #events = [];
 
   #startPoint = null;
   #endPoint = null;
 
-  constructor(container, tripsModel) {
+  constructor(container, pointsModel) {
     this.#container = container;
-    this.#tripsModel = tripsModel;
+    this.#pointsModel = pointsModel;
   }
 
   init = () => {
-    this.#trips = [...this.#tripsModel.trips.sort(sortTripByDay)];
-    this.#startPoint = getStartPoint(this.#trips);
-    this.#endPoint = getEndPoint(this.#trips);
+    this.#events = [...this.#pointsModel.events.sort(sortTripByDay)];
+    this.#startPoint = getStartPoint(this.#events);
+    this.#endPoint = getEndPoint(this.#events);
 
-    render(new TripInfoView(this.#getTitle(), this.#getDates(), this.#getTotalCost()), this.#container);
+    render(new TripInfoView(this.#getTitle(), this.#getDates(), this.#getTotalCost()), this.#container, RenderPosition.AFTERBEGIN);
   };
 
   #getTitle() {
-    const cities = this.#trips
-      .map(({destination}) => destination.name)
+    const cities = this.#events
+      .map(({destination}) => destination?.name)
       .reduce((items, city) => {
         if (items[items.length - 1] !== city) {
           items.push(city);
@@ -43,13 +43,13 @@ export default class InfoPresenter {
   }
 
   #getDates() {
-    const endDates = this.#trips.map((trip) => trip.dateTo);
+    const endDates = this.#events.map((event) => event.dateTo);
     const endDate = endDates.sort(sortByDate)[endDates.length - 1];
 
     return formatTripDates(this.#startPoint.dateFrom, endDate);
   }
 
   #getTotalCost() {
-    return this.#trips.reduce((cost, trip) => (cost += trip.basePrice), 0);
+    return this.#events.reduce((cost, event) => (cost += event.basePrice), 0);
   }
 }

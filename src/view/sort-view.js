@@ -15,7 +15,7 @@ const createSortItemTemplate = ({type, checked = false, disabled = false}) => (`
   </div>
 `);
 
-const createTripSortTemplate = (items) => {
+const createSortTemplate = (items) => {
   const sortItemsTemplate = items.map(createSortItemTemplate).join('');
   return (`
     <form class="trip-events__trip-sort trip-sort" action="#" method="get">
@@ -24,7 +24,7 @@ const createTripSortTemplate = (items) => {
   `);
 };
 
-export default class TripSortView extends AbstractView {
+export default class SortView extends AbstractView {
   #sortColumns = [];
 
   constructor(sortColumns) {
@@ -33,7 +33,7 @@ export default class TripSortView extends AbstractView {
   }
 
   get template() {
-    return createTripSortTemplate(this.#sortColumns);
+    return createSortTemplate(this.#sortColumns);
   }
 
   setSortTypeChangeHandler = (callback) => {

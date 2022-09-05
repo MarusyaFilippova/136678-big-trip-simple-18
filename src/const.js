@@ -18,16 +18,19 @@ const NoEventsMessage = {
   [FilterType.PAST]: 'There are no past events now',
 };
 
+const LOADING_MESSAGE = 'LOADING...';
+
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 const UserAction = {
-  UPDATE_TRIP: 'UPDATE_TRIP',
-  ADD_TRIP: 'ADD_TRIP',
-  DELETE_TRIP: 'DELETE_TRIP',
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
 };
 
 export {
@@ -36,4 +39,5 @@ export {
   NoEventsMessage,
   UpdateType,
   UserAction,
+  LOADING_MESSAGE,
 };

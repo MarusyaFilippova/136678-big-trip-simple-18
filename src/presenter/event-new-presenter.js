@@ -3,26 +3,26 @@ import { UpdateType, UserAction } from '../const';
 import { isEscKeyDown } from '../utils/main';
 import { remove, render, RenderPosition } from '../framework/render';
 
-export default class TripNewPresenter {
+export default class EventNewPresenter {
   #container = null;
-  #tripsModel = null;
+  #pointsModel = null;
   #changeData = null;
 
   #formComponent = null;
 
   #destroyCallback = null;
 
-  constructor(container, changeData, tripsModel) {
+  constructor(container, changeData, pointsModel) {
     this.#container = container;
     this.#changeData = changeData;
-    this.#tripsModel = tripsModel;
+    this.#pointsModel = pointsModel;
   }
 
   init = (callback) => {
     this.#destroyCallback = callback;
 
-    const destinations = [...this.#tripsModel.destinations];
-    const offers = [...this.#tripsModel.offers];
+    const destinations = [...this.#pointsModel.destinations];
+    const offers = [...this.#pointsModel.offers];
 
     if (this.#formComponent !== null) {
       return;
@@ -57,11 +57,11 @@ export default class TripNewPresenter {
     });
   };
 
-  #handleFormSubmit = (trip) => {
+  #handleFormSubmit = (event) => {
     this.#changeData(
-      UserAction.ADD_TRIP,
+      UserAction.ADD_POINT,
       UpdateType.MINOR,
-      trip,
+      event,
     );
     this.destroy();
   };

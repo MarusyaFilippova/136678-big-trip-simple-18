@@ -30,7 +30,7 @@ const createOfferTemplate = ({title, price}) => (`
 
 const createOffersTemplate = (offers) => offers?.length ? offers.map(createOfferTemplate).join('') : '';
 
-const createTripTemplate = ({basePrice, dateFrom, dateTo, destination, isFavorite, offers, type}) => {
+const createEventTemplate = ({basePrice, dateFrom, dateTo, destination, isFavorite, offers, type}) => {
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
 
   const eventDate = formatDate(dateFrom, 'DD MMM');
@@ -69,16 +69,16 @@ const createTripTemplate = ({basePrice, dateFrom, dateTo, destination, isFavorit
 };
 
 
-export default class TripView extends AbstractView {
-  #trip = null;
+export default class EventView extends AbstractView {
+  #event = null;
 
-  constructor(point) {
+  constructor(event) {
     super();
-    this.#trip = point;
+    this.#event = event;
   }
 
   get template() {
-    return createTripTemplate(this.#trip);
+    return createEventTemplate(this.#event);
   }
 
   setRollUpButtonClick = (callback) => {
@@ -93,7 +93,7 @@ export default class TripView extends AbstractView {
 
   #rollUpButtonHandler = (evt) => {
     evt.preventDefault();
-    this._callback.rollUpButtonClick(this.#trip, this);
+    this._callback.rollUpButtonClick(this.#event, this);
   };
 
   #favoriteHandler = (evt) => {
