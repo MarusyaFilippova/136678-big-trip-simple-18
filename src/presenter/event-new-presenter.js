@@ -51,6 +51,25 @@ export default class EventNewPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
+  setSaving = () => {
+    this.#formComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  };
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#formComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#formComponent.shake(resetFormState);
+  };
+
   #escKeyDownHandler = (evt) => {
     isEscKeyDown(evt, () => {
       this.destroy();
@@ -63,7 +82,6 @@ export default class EventNewPresenter {
       UpdateType.MINOR,
       event,
     );
-    this.destroy();
   };
 
   #handleFormClose = () => {

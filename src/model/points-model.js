@@ -53,7 +53,7 @@ export default class PointsModel extends Observable {
 
     try {
       const response = await this.#apiService.updatePoint(update);
-      const updatedPoint = this.#adaptToClient(response);
+      const updatedPoint = this.#supplementPoint(this.#adaptToClient(response));
       this.#events = [
         ...this.#events.slice(0, index),
         updatedPoint,
@@ -66,28 +66,38 @@ export default class PointsModel extends Observable {
     }
   };
 
-  addPoint = (updateType, newPoint) => {
-    this.#events = [
-      newPoint,
-      ...this.#events,
-    ];
+  addPoint = async (updateType, update) => {
+    try {
+      const response = await this.#apiService.addPoint(update);
+      const newPoint = this.#supplementPoint(this.#adaptToClient(response));
+      this.#events = [
+        newPoint,
+        ...this.#events,
+      ];
 
-    this._notify(updateType, newPoint);
+      this._notify(updateType, newPoint);
+    } catch(err) {
+      throw new Error('Can\'t add point');
+    }
   };
 
-  deletePoint = (updateType, removedPoint) => {
-    const index = this.#events.findIndex((event) => event.id === removedPoint.id);
+  deletePoint = async (updateType, update) => {
+    const index = this.#events.findIndex((event) => event.id === update.id);
 
     if (index === -1) {
       throw Error('Can\'t delete unexciting point');
     }
 
-    this.#events = [
-      ...this.#events.slice(0, index),
-      ...this.#events.slice(index + 1),
-    ];
-
-    this._notify(updateType, removedPoint);
+    try {
+      await this.#apiService.deletePoint(update);
+      this.#events = [
+        ...this.#events.slice(0, index),
+        ...this.#events.slice(index + 1),
+      ];
+      this._notify(updateType);
+    } catch(err) {
+      throw new Error('Can\'t delete task');
+    }
   };
 
   #adaptToClient = (point) => {

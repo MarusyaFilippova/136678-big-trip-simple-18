@@ -8,7 +8,7 @@ const BLANK_EVENT = {
   basePrice: null,
   dateFrom: null,
   dateTo: null,
-  destinationId: null,
+  destination: null,
   isFavorite: false,
   offers: [],
   type: null,
@@ -144,6 +144,9 @@ const createEventFormTemplate = (event, destinations, offers) => {
     destination: eventDestination,
     offers: eventOffers,
     type,
+    isDisabled,
+    isSaving,
+    isDeleting,
   } = event;
 
   const types = offers.map((offer) => offer.type);
@@ -154,17 +157,21 @@ const createEventFormTemplate = (event, destinations, offers) => {
   const offersSection = createOffersSection(eventOffers, offerByType?.offers);
   const destinationSection = createDestinationSection(eventDestination, destinations);
 
+  const isSubmitDisabled = isDisabled | !dateFrom | !dateTo | !type | !eventDestination;
+
   const buttonCloseTemplate = id
     ? `<button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Close event</span>
       </button>`
     : '';
 
-  const isSubmitDisabled = !dateFrom | !dateTo | !type | !eventDestination;
+  const buttonResetTemplate = id
+    ? `<button class="event__reset-btn" type="reset">${isDeleting ? 'Deleting...' : 'Delete'}</button>`
+    : '<button class="event__reset-btn" type="reset">Cancel</button>';
 
   return (`
     <li class="trip-events__item">
-      <form class="event event--edit" action="#" method="post">
+      <form class="event event--edit" action="#" method="post" ${isDisabled ? 'disabled' : ''}>
         <header class="event__header">
           ${eventTypeTemplate}
           ${destinationTemplate}
@@ -204,8 +211,10 @@ const createEventFormTemplate = (event, destinations, offers) => {
               required
             >
           </div>
-          <button class="event__save-btn btn btn--blue" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
-          <button class="event__reset-btn" type="reset">${id ? 'Delete' : 'Cancel'}</button>
+          <button class="event__save-btn btn btn--blue" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>
+            ${isSaving ? 'Saving...' : 'Save'}
+          </button>
+          ${buttonResetTemplate}
           ${buttonCloseTemplate}
         </header>
         <section class="event__details">
@@ -229,7 +238,7 @@ export default class EventFormView extends AbstractStatefulView {
     this.#destinations = destinations;
     this.#offers = offers;
 
-    this._state = {...event};
+    this._state = EventFormView.parseEventToState(event);
     this.#setInnerHandlers();
   }
 
@@ -252,7 +261,7 @@ export default class EventFormView extends AbstractStatefulView {
   };
 
   reset = (event) => {
-    this.updateElement({...event});
+    this.updateElement(EventFormView.parseEventToState(event));
   };
 
   setRollUpButtonClick = (callback) => {
@@ -344,13 +353,13 @@ export default class EventFormView extends AbstractStatefulView {
   #submitHandler = (evt) => {
     evt.preventDefault();
 
-    this._callback.submit({...this._state});
+    this._callback.submit(EventFormView.parseStateToEvent(this._state));
   };
 
   #deleteHandler = (evt) => {
     evt.preventDefault();
 
-    this._callback.delete({...this._state});
+    this._callback.delete(EventFormView.parseStateToEvent(this._state));
   };
 
   #resetHandler = (evt) => {
@@ -410,5 +419,22 @@ export default class EventFormView extends AbstractStatefulView {
     this.setFormReset(this._callback.reset);
     this.setFormDelete(this._callback.delete);
     this.setRollUpButtonClick(this._callback.rollUpButtonClick);
+  };
+
+  static parseEventToState = (event) => ({
+    ...event,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
+  });
+
+  static parseStateToEvent = (state) => {
+    const event = {...state};
+
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
+
+    return event;
   };
 }
