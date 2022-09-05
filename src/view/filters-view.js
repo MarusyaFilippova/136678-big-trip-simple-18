@@ -14,7 +14,7 @@ const createFilterTemplate = ({type, checked, disabled}) => (`
   </div>
 `);
 
-const createTripFiltersTemplate = (filters) => {
+const createFiltersTemplate = (filters) => {
   const filtersTemplate = filters.map(createFilterTemplate).join('');
   return (`
     <div class="trip-main__trip-controls trip-controls">
@@ -29,7 +29,7 @@ const createTripFiltersTemplate = (filters) => {
   `);
 };
 
-export default class TripFiltersView extends AbstractView {
+export default class FiltersView extends AbstractView {
   #filters = [];
 
   constructor(filters) {
@@ -38,7 +38,7 @@ export default class TripFiltersView extends AbstractView {
   }
 
   get template() {
-    return createTripFiltersTemplate(this.#filters);
+    return createFiltersTemplate(this.#filters);
   }
 
   setFilterTypeChangeHandler = (callback) => {

@@ -1,48 +1,58 @@
 import AddEventButtonView from '../view/add-event-button-view';
+import ApiService from '../api-service';
 import FilterModel from '../model/filter-model';
 import FilterPresenter from './filter-presenter';
 import InfoPresenter from './info-presenter';
 import ListPresenter from './list-presenter';
-import TripsModel from '../model/trips-model';
+import PointsModel from '../model/points-model';
 import { render, RenderPosition } from '../framework/render';
+
+const AUTHORIZATION = 'Basic hS2sfS44wcl1ma2i';
+const END_POINT = 'https://18.ecmascript.pages.academy/big-trip';
 
 export default class MainPresenter {
   #headerContainer = null;
   #mainContainer = null;
 
-  #tripsModel = new TripsModel();
+  #pointsModel = new PointsModel(new ApiService(END_POINT, AUTHORIZATION));
   #filterModel = new FilterModel();
 
   #infoPresenter = null;
   #filterPresenter = null;
-  #tripPresenter = null;
+  #listPresenter = null;
 
-  #newTripButtonComponent = new AddEventButtonView();
+  #newEventButtonComponent = new AddEventButtonView();
 
   constructor(headerContainer, mainContainer) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
 
-    this.#infoPresenter = new InfoPresenter(this.#headerContainer, this.#tripsModel);
-    this.#filterPresenter = new FilterPresenter(this.#headerContainer, this.#filterModel, this.#tripsModel);
-    this.#tripPresenter = new ListPresenter(this.#mainContainer, this.#tripsModel, this.#filterModel);
+    this.#infoPresenter = new InfoPresenter(this.#headerContainer, this.#pointsModel);
+    this.#filterPresenter = new FilterPresenter(this.#headerContainer, this.#filterModel, this.#pointsModel);
+    this.#listPresenter = new ListPresenter(this.#mainContainer, this.#pointsModel, this.#filterModel);
   }
 
   init() {
-    this.#infoPresenter.init();
-    this.#filterPresenter.init();
-    this.#tripPresenter.init();
+    this.#pointsModel.init().then(() => {
+      this.#infoPresenter.init();
+      this.#newEventButtonComponent.element.disabled = false;
+    });
 
-    render(this.#newTripButtonComponent, this.#headerContainer, RenderPosition.BEFOREEND);
-    this.#newTripButtonComponent.setClickHandler(this.#handleNewTripButtonClick);
+    this.#filterPresenter.init();
+    this.#listPresenter.init();
+
+    render(this.#newEventButtonComponent, this.#headerContainer, RenderPosition.BEFOREEND);
+
+    this.#newEventButtonComponent.element.disabled = true;
+    this.#newEventButtonComponent.setClickHandler(this.#handleNewEventButtonClick);
   }
 
-  #handleNewTripFormClose = () => {
-    this.#newTripButtonComponent.element.disabled = false;
+  #handleNewEventFormClose = () => {
+    this.#newEventButtonComponent.element.disabled = false;
   };
 
-  #handleNewTripButtonClick = () => {
-    this.#tripPresenter.createTrip(this.#handleNewTripFormClose);
-    this.#newTripButtonComponent.element.disabled = true;
+  #handleNewEventButtonClick = () => {
+    this.#listPresenter.createEvent(this.#handleNewEventFormClose);
+    this.#newEventButtonComponent.element.disabled = true;
   };
 }

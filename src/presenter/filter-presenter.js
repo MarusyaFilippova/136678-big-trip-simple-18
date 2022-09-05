@@ -1,32 +1,32 @@
-import TripFiltersView from '../view/trip-filters-view';
+import FiltersView from '../view/filters-view';
 import { FilterType, UpdateType } from '../const';
 import { filterByType } from '../utils/filter';
-import { remove, render, replace } from '../framework/render';
+import {remove, render, RenderPosition, replace} from '../framework/render';
 
 export default class FilterPresenter {
   #container = null;
 
   #filterModel = null;
-  #tripsModel = null;
+  #pointsModel = null;
 
   #filtersComponent = null;
 
-  constructor(container, filterModel, tripsModel) {
+  constructor(container, filterModel, pointsModel) {
     this.#container = container;
     this.#filterModel = filterModel;
-    this.#tripsModel = tripsModel;
+    this.#pointsModel = pointsModel;
 
-    this.#tripsModel.addObserver(this.#handleModelEvent);
+    this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get filters() {
-    const trips = this.#tripsModel.trips;
+    const events = this.#pointsModel.events;
 
     return Object.values(FilterType).map((type) => ({
       type,
       checked: type === this.#filterModel.filter,
-      disabled: !filterByType[type](trips).length
+      disabled: !filterByType[type](events).length
     }));
   }
 
@@ -34,11 +34,11 @@ export default class FilterPresenter {
     const filters = this.filters;
     const prevFilterComponent = this.#filtersComponent;
 
-    this.#filtersComponent = new TripFiltersView(filters);
+    this.#filtersComponent = new FiltersView(filters);
     this.#filtersComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
 
     if (!prevFilterComponent) {
-      render(this.#filtersComponent, this.#container);
+      render(this.#filtersComponent, this.#container, RenderPosition.BEFOREEND);
       return;
     }
 
