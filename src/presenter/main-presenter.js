@@ -30,11 +30,12 @@ export default class MainPresenter {
     this.#infoPresenter = new InfoPresenter(this.#headerContainer, this.#pointsModel);
     this.#filterPresenter = new FilterPresenter(this.#headerContainer, this.#filterModel, this.#pointsModel);
     this.#listPresenter = new ListPresenter(this.#mainContainer, this.#pointsModel, this.#filterModel);
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
     this.#pointsModel.init().then(() => {
-      this.#infoPresenter.init();
       this.#newEventButtonComponent.element.disabled = false;
     });
 
@@ -46,6 +47,11 @@ export default class MainPresenter {
     this.#newEventButtonComponent.element.disabled = true;
     this.#newEventButtonComponent.setClickHandler(this.#handleNewEventButtonClick);
   }
+
+  #handleModelEvent = () => {
+    this.#infoPresenter.destroy();
+    this.#infoPresenter.init();
+  };
 
   #handleNewEventFormClose = () => {
     this.#newEventButtonComponent.element.disabled = false;
