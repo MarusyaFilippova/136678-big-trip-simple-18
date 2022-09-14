@@ -1,6 +1,6 @@
 import TripInfoView from '../view/trip-info-view';
-import { formatTripDates, getEndPoint, getStartPoint } from '../utils/trip';
-import {render, RenderPosition} from '../framework/render';
+import { formatTripDates, getStartPoint } from '../utils/trip';
+import { remove, render, RenderPosition } from '../framework/render';
 import { sortByDate, sortTripByDay } from '../utils/sort';
 
 export default class InfoPresenter {
@@ -9,8 +9,7 @@ export default class InfoPresenter {
 
   #events = [];
 
-  #startPoint = null;
-  #endPoint = null;
+  #tripInfoView = null;
 
   constructor(container, pointsModel) {
     this.#container = container;
@@ -19,10 +18,16 @@ export default class InfoPresenter {
 
   init = () => {
     this.#events = [...this.#pointsModel.events.sort(sortTripByDay)];
-    this.#startPoint = getStartPoint(this.#events);
-    this.#endPoint = getEndPoint(this.#events);
 
-    render(new TripInfoView(this.#getTitle(), this.#getDates(), this.#getTotalCost()), this.#container, RenderPosition.AFTERBEGIN);
+    if (!this.#events.length) {
+      this.destroy();
+      return;
+    }
+
+    const startPoint = getStartPoint(this.#events);
+
+    this.#tripInfoView = new TripInfoView(this.#getTitle(), this.#getDates(startPoint), this.#getTotalCost());
+    render(this.#tripInfoView, this.#container, RenderPosition.AFTERBEGIN);
   };
 
   #getTitle() {
@@ -42,14 +47,22 @@ export default class InfoPresenter {
     return `${cities[0]} - ... - ${cities[cities.length - 1]}`;
   }
 
-  #getDates() {
+  #getDates(startPoint) {
     const endDates = this.#events.map((event) => event.dateTo);
     const endDate = endDates.sort(sortByDate)[endDates.length - 1];
 
-    return formatTripDates(this.#startPoint.dateFrom, endDate);
+    return formatTripDates(startPoint.dateFrom, endDate);
+  }
+
+  #getEventPrice({basePrice, offers}) {
+    return offers.reduce((price, offer = {}) => price + offer?.price, basePrice);
   }
 
   #getTotalCost() {
-    return this.#events.reduce((cost, event) => (cost += event.basePrice), 0);
+    return this.#events.reduce((cost, event) => (cost + this.#getEventPrice(event)), 0);
   }
+
+  destroy = () => {
+    remove(this.#tripInfoView);
+  };
 }
