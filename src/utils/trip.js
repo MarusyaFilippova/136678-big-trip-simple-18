@@ -38,4 +38,4 @@ const getTripDuration = (dateFrom, dateTo) => {
 
 const encodeValue = (value) => he.encode(value);
 
-export { encodeValue, getStartPoint, getEndPoint, getTripDuration, formatTripDates };
+export { encodeValue, getStartPoint, getTripDuration, formatTripDates };
