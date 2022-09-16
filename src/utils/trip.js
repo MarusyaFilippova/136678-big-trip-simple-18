@@ -3,7 +3,6 @@ import he from 'he';
 import { formatDate } from './date';
 
 const getStartPoint = (trips) => [...trips].sort((tripA, tripB) => dayjs(tripA.dateFrom) - dayjs(tripB.dateFrom))[0];
-const getEndPoint = (trips) => [...trips].sort((tripA, tripB) => dayjs(tripA.dateTo) - dayjs(tripB.dateTo))[trips.length - 1];
 
 const formatTripDates = (startDate, endDate) => `${formatDate(startDate, 'D MMM')} — ${formatDate(endDate, 'D MMM')}`;
 
@@ -39,4 +38,4 @@ const getTripDuration = (dateFrom, dateTo) => {
 
 const encodeValue = (value) => he.encode(value);
 
-export { encodeValue, getStartPoint, getEndPoint, getTripDuration, formatTripDates };
+export { encodeValue, getStartPoint, getTripDuration, formatTripDates };
